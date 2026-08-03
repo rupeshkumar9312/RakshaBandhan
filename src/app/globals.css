@@ -1,0 +1,276 @@
+@import "tailwindcss";
+
+@theme {
+  /* ---- Brand: festive maroon + gold on cream ---- */
+  --color-cream-50: #fefcf8;
+  --color-cream-100: #fdf8f1;
+  --color-cream-200: #f7ecdd;
+  --color-cream-300: #eeddc6;
+
+  --color-maroon-50: #fdf3f4;
+  --color-maroon-100: #fbe3e6;
+  --color-maroon-200: #f6cbd1;
+  --color-maroon-300: #ee9fac;
+  --color-maroon-400: #e26a82;
+  --color-maroon-500: #d13c5c;
+  --color-maroon-600: #b31f45;
+  --color-maroon-700: #8f1638;
+  --color-maroon-800: #6d1029;
+  --color-maroon-900: #4b0b1c;
+  --color-maroon-950: #2c0510;
+
+  --color-gold-50: #fdfaef;
+  --color-gold-100: #faf2d6;
+  --color-gold-200: #f4e3a8;
+  --color-gold-300: #ebcd70;
+  --color-gold-400: #e0b544;
+  --color-gold-500: #c9962e;
+  --color-gold-600: #a97624;
+  --color-gold-700: #855720;
+  --color-gold-800: #6b4520;
+  --color-gold-900: #5a3a1e;
+
+  --color-ink: #1c1216;
+  --color-ink-soft: #4a3b41;
+  --color-ink-muted: #7d6b72;
+
+  --font-display: var(--font-fraunces), Georgia, "Times New Roman", serif;
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, sans-serif;
+
+  --radius-xl2: 1.25rem;
+
+  --shadow-soft: 0 1px 2px rgb(28 18 22 / 0.04), 0 8px 24px -8px rgb(28 18 22 / 0.10);
+  --shadow-lift: 0 2px 4px rgb(28 18 22 / 0.05), 0 18px 40px -12px rgb(28 18 22 / 0.18);
+  --shadow-gold: 0 10px 30px -10px rgb(201 150 46 / 0.45);
+
+  --animate-marquee: marquee 32s linear infinite;
+  --animate-float-slow: floatSlow 9s ease-in-out infinite;
+  --animate-rise: rise 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+  --animate-shimmer: shimmer 2.2s linear infinite;
+}
+
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+@keyframes floatSlow {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-14px) rotate(3deg); }
+}
+@keyframes rise {
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes shimmer {
+  from { background-position: -200% 0; }
+  to { background-position: 200% 0; }
+}
+
+@layer base {
+  * {
+    border-color: var(--color-cream-300);
+  }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background-color: var(--color-cream-100);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    overflow-x: hidden;
+  }
+
+  h1, h2, h3, h4 {
+    font-family: var(--font-display);
+    letter-spacing: -0.02em;
+  }
+
+  ::selection {
+    background: var(--color-maroon-700);
+    color: var(--color-cream-100);
+  }
+
+  /* Inputs get a consistent premium base */
+  input, select, textarea {
+    font-family: inherit;
+  }
+
+  input:focus-visible,
+  select:focus-visible,
+  textarea:focus-visible,
+  button:focus-visible,
+  a:focus-visible {
+    outline: 2px solid var(--color-gold-500);
+    outline-offset: 2px;
+  }
+}
+
+@layer components {
+  .container-x {
+    width: 100%;
+    margin-inline: auto;
+    max-width: 80rem;
+    padding-inline: 1rem;
+  }
+  @media (min-width: 640px) { .container-x { padding-inline: 1.5rem; } }
+  @media (min-width: 1024px) { .container-x { padding-inline: 2rem; } }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    border-radius: 9999px;
+    font-weight: 600;
+    font-size: 0.9375rem;
+    line-height: 1;
+    padding: 0.875rem 1.75rem;
+    transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.18s, background-color 0.18s, color 0.18s, opacity 0.18s;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .btn:active { transform: scale(0.97); }
+  .btn:disabled { opacity: 0.55; cursor: not-allowed; transform: none; }
+
+  .btn-primary {
+    background: linear-gradient(135deg, var(--color-maroon-700), var(--color-maroon-600));
+    color: var(--color-cream-50);
+    box-shadow: var(--shadow-soft);
+  }
+  .btn-primary:hover:not(:disabled) {
+    box-shadow: var(--shadow-lift);
+    transform: translateY(-1px);
+  }
+
+  .btn-gold {
+    background: linear-gradient(135deg, var(--color-gold-400), var(--color-gold-600));
+    color: var(--color-maroon-950);
+    box-shadow: var(--shadow-gold);
+  }
+  .btn-gold:hover:not(:disabled) { transform: translateY(-1px); }
+
+  .btn-outline {
+    border: 1.5px solid var(--color-maroon-700);
+    color: var(--color-maroon-700);
+    background: transparent;
+  }
+  .btn-outline:hover:not(:disabled) {
+    background: var(--color-maroon-700);
+    color: var(--color-cream-50);
+  }
+
+  .btn-ghost {
+    color: var(--color-ink-soft);
+    background: transparent;
+  }
+  .btn-ghost:hover:not(:disabled) { background: var(--color-cream-200); color: var(--color-ink); }
+
+  .btn-sm { padding: 0.5rem 1rem; font-size: 0.8125rem; }
+
+  .card {
+    background: white;
+    border: 1px solid var(--color-cream-300);
+    border-radius: var(--radius-xl2);
+    box-shadow: var(--shadow-soft);
+  }
+
+  .field {
+    width: 100%;
+    border-radius: 0.75rem;
+    border: 1.5px solid var(--color-cream-300);
+    background: white;
+    padding: 0.75rem 0.9375rem;
+    font-size: 0.9375rem;
+    color: var(--color-ink);
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .field::placeholder { color: var(--color-ink-muted); }
+  .field:focus {
+    border-color: var(--color-gold-400);
+    outline: none;
+    box-shadow: 0 0 0 3px rgb(224 181 68 / 0.18);
+  }
+  .field-error { border-color: var(--color-maroon-500); }
+
+  .label {
+    display: block;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--color-ink-soft);
+    margin-bottom: 0.4rem;
+  }
+
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    border-radius: 9999px;
+    padding: 0.3125rem 0.75rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+  }
+
+  .eyebrow {
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--color-gold-600);
+  }
+
+  .skeleton {
+    background: linear-gradient(90deg, var(--color-cream-200) 25%, var(--color-cream-300) 50%, var(--color-cream-200) 75%);
+    background-size: 200% 100%;
+    animation: var(--animate-shimmer);
+  }
+
+  /* Decorative festive divider */
+  .rule-gold {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--color-gold-300), transparent);
+  }
+
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+}
+
+/* Invoices and packing slips print from the admin order page. */
+@media print {
+  @page {
+    margin: 14mm;
+  }
+  body {
+    background: white !important;
+    color: black;
+  }
+  .print\:hidden {
+    display: none !important;
+  }
+  aside,
+  header {
+    display: none !important;
+  }
+  main {
+    padding: 0 !important;
+  }
+  .card {
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

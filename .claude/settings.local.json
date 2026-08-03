@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm -v)",
+      "Bash(npx --yes create-next-app@latest rb-scaffold --ts --tailwind --app --src-dir --eslint --import-alias \"@/*\" --use-npm --turbopack --yes)",
+      "Bash(npm install *)",
+      "Bash(npx prisma *)",
+      "Bash(npm run *)",
+      "Bash(ls node_modules/.bin/ 2>/dev/null | head -30; echo \"---PRISMA CLIENT---\"; ls node_modules/.prisma/client/ 2>/dev/null | head; echo \"---DB---\"; ls -la prisma/*.db 2>/dev/null; echo \"---SERVER-ONLY---\"; ls node_modules/server-only 2>/dev/null || echo MISSING; echo \"---CACHE OWNER---\"; ls -ld ~/.npm/_cacache)",
+      "Bash(export NPM_CACHE=/private/tmp/claude-502/-Users-rupeshkumar-Learning-RakshaBandhan/a678591b-d5f3-4244-8307-88839e44c789/scratchpad/npm-cache)",
+      "Read(//Users/rupeshkumar/.cache/prisma/**)"
+    ]
+  }
+}

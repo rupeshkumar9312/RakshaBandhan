@@ -1,0 +1,20 @@
+node_modules
+.next
+out
+build
+.DS_Store
+*.pem
+npm-debug.log*
+.env
+.env*.local
+next-env.d.ts
+/prisma/*.db
+/prisma/*.db-journal
+/public/uploads/*
+!/public/uploads/.gitkeep
+.vercel
+*.tsbuildinfo
+
+# Local workaround for a root-owned ~/.cache/prisma (see README "Known setup issue")
+.prisma-home
+.cache

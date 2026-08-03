@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 1125" width="900" height="1125">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="42%" r="78%">
+      <stop offset="0%" stop-color="#1a6b5f"/>
+      <stop offset="100%" stop-color="#0f3d3e"/>
+    </radialGradient>
+    <linearGradient id="metal" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#f4e3a8"/>
+      <stop offset="50%" stop-color="#c9962e"/>
+      <stop offset="100%" stop-color="#f4e3a8"/>
+    </linearGradient>
+    <linearGradient id="cord" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#d13c5c" stop-opacity="0.25"/>
+      <stop offset="50%" stop-color="#d13c5c"/>
+      <stop offset="100%" stop-color="#d13c5c" stop-opacity="0.25"/>
+    </linearGradient>
+    <filter id="soft" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="26"/>
+    </filter>
+  </defs>
+
+  <rect width="900" height="1125" fill="url(#bg)"/>
+
+  <!-- ambient glow -->
+  <circle cx="450" cy="562.5" r="396.90000000000003" fill="#c9962e" opacity="0.16" filter="url(#soft)"/>
+
+  <!-- decorative corner arcs -->
+  <g stroke="#f4e3a8" stroke-opacity="0.13" fill="none" stroke-width="2">
+    <circle cx="450" cy="562.5" r="472.5"/>
+    <circle cx="450" cy="562.5" r="585.9" stroke-dasharray="6 14"/>
+  </g>
+
+  <!-- silk cord -->
+  <path d="M0 562.5 Q 225 516.5 450 562.5 T 900 562.5"
+        stroke="url(#cord)" stroke-width="16" fill="none" stroke-linecap="round"/>
+  <path d="M0 575.5 Q 225 529.5 450 575.5 T 900 575.5"
+        stroke="url(#cord)" stroke-width="7" fill="none" opacity="0.55" stroke-linecap="round"/>
+
+  <!-- medallion -->
+  <ellipse cx="450" cy="307.35" rx="92.61000000000001" ry="75.60000000000001" fill="#c9962e" opacity="0.85" transform="rotate(0 450 562.5)"/><ellipse cx="450" cy="307.35" rx="92.61000000000001" ry="75.60000000000001" fill="#c9962e" opacity="0.85" transform="rotate(30 450 562.5)"/><ellipse cx="450" cy="307.35" rx="92.61000000000001" ry="75.60000000000001" fill="#c9962e" opacity="0.85" transform="rotate(60 450 562.5)"/><ellipse cx="450" cy="307.35" rx="92.61000000000001" ry="75.60000000000001" fill="#c9962e" opacity="0.85" transform="rotate(90 450 562.5)"/><ellipse cx="450" cy="307.35" rx="92.61000000000001" ry="75.60000000000001" fill="#c9962e" opacity="0.85" transform="rotate(120 450 562.5)"/><ellipse cx="450" cy="307.35" rx="92.61000000000001" ry="75.60000000000001" fill="#c9962e" opacity="0.85" transform="rotate(150 450 562.5)"/><ellipse cx="450" cy="307.35" rx="92.61000000000001" ry="75.60000000000001" fill="#c9962e" opacity="0.85" transform="rotate(180 450 562.5)"/><ellipse cx="450" cy="307.35" rx="92.61000000000001" ry="75.60000000000001" fill="#c9962e" opacity="0.85" transform="rotate(210 450 562.5)"/><ellipse cx="450" cy="307.35" rx="92.61000000000001" ry="75.60000000000001" fill="#c9962e" opacity="0.85" transform="rotate(240 450 562.5)"/><ellipse cx="450" cy="307.35" rx="92.61000000000001" ry="75.60000000000001" fill="#c9962e" opacity="0.85" transform="rotate(270 450 562.5)"/><ellipse cx="450" cy="307.35" rx="92.61000000000001" ry="75.60000000000001" fill="#c9962e" opacity="0.85" transform="rotate(300 450 562.5)"/><ellipse cx="450" cy="307.35" rx="92.61000000000001" ry="75.60000000000001" fill="#c9962e" opacity="0.85" transform="rotate(330 450 562.5)"/>
+  <ellipse cx="450" cy="335.7" rx="79.38000000000001" ry="56.7" fill="#f4e3a8" opacity="0.65" transform="rotate(0 450 562.5)"/><ellipse cx="450" cy="335.7" rx="79.38000000000001" ry="56.7" fill="#f4e3a8" opacity="0.65" transform="rotate(30 450 562.5)"/><ellipse cx="450" cy="335.7" rx="79.38000000000001" ry="56.7" fill="#f4e3a8" opacity="0.65" transform="rotate(60 450 562.5)"/><ellipse cx="450" cy="335.7" rx="79.38000000000001" ry="56.7" fill="#f4e3a8" opacity="0.65" transform="rotate(90 450 562.5)"/><ellipse cx="450" cy="335.7" rx="79.38000000000001" ry="56.7" fill="#f4e3a8" opacity="0.65" transform="rotate(120 450 562.5)"/><ellipse cx="450" cy="335.7" rx="79.38000000000001" ry="56.7" fill="#f4e3a8" opacity="0.65" transform="rotate(150 450 562.5)"/><ellipse cx="450" cy="335.7" rx="79.38000000000001" ry="56.7" fill="#f4e3a8" opacity="0.65" transform="rotate(180 450 562.5)"/><ellipse cx="450" cy="335.7" rx="79.38000000000001" ry="56.7" fill="#f4e3a8" opacity="0.65" transform="rotate(210 450 562.5)"/><ellipse cx="450" cy="335.7" rx="79.38000000000001" ry="56.7" fill="#f4e3a8" opacity="0.65" transform="rotate(240 450 562.5)"/><ellipse cx="450" cy="335.7" rx="79.38000000000001" ry="56.7" fill="#f4e3a8" opacity="0.65" transform="rotate(270 450 562.5)"/><ellipse cx="450" cy="335.7" rx="79.38000000000001" ry="56.7" fill="#f4e3a8" opacity="0.65" transform="rotate(300 450 562.5)"/><ellipse cx="450" cy="335.7" rx="79.38000000000001" ry="56.7" fill="#f4e3a8" opacity="0.65" transform="rotate(330 450 562.5)"/>
+
+  <circle cx="450" cy="562.5" r="200.34" fill="url(#metal)"/>
+  <circle cx="450" cy="562.5" r="173.88" fill="#0f3d3e" opacity="0.55"/>
+  <circle cx="450" cy="562.5" r="147.42000000000002" fill="url(#metal)"/>
+
+  <circle cx="450.0" cy="375.4" r="14.174999999999999" fill="#f0fdfa"/><circle cx="543.6" cy="400.5" r="14.174999999999999" fill="#f0fdfa"/><circle cx="612.0" cy="468.9" r="14.174999999999999" fill="#f0fdfa"/><circle cx="637.1" cy="562.5" r="14.174999999999999" fill="#f0fdfa"/><circle cx="612.0" cy="656.1" r="14.174999999999999" fill="#f0fdfa"/><circle cx="543.6" cy="724.5" r="14.174999999999999" fill="#f0fdfa"/><circle cx="450.0" cy="749.6" r="14.174999999999999" fill="#f0fdfa"/><circle cx="356.4" cy="724.5" r="14.174999999999999" fill="#f0fdfa"/><circle cx="288.0" cy="656.1" r="14.174999999999999" fill="#f0fdfa"/><circle cx="262.9" cy="562.5" r="14.174999999999999" fill="#f0fdfa"/><circle cx="288.0" cy="468.9" r="14.174999999999999" fill="#f0fdfa"/><circle cx="356.4" cy="400.5" r="14.174999999999999" fill="#f0fdfa"/>
+  <circle cx="450.0" cy="468.0" r="17.009999999999998" fill="#0f3d3e"/><circle cx="516.8" cy="495.7" r="17.009999999999998" fill="#0f3d3e"/><circle cx="544.5" cy="562.5" r="17.009999999999998" fill="#0f3d3e"/><circle cx="516.8" cy="629.3" r="17.009999999999998" fill="#0f3d3e"/><circle cx="450.0" cy="657.0" r="17.009999999999998" fill="#0f3d3e"/><circle cx="383.2" cy="629.3" r="17.009999999999998" fill="#0f3d3e"/><circle cx="355.5" cy="562.5" r="17.009999999999998" fill="#0f3d3e"/><circle cx="383.2" cy="495.7" r="17.009999999999998" fill="#0f3d3e"/>
+
+  <circle cx="450" cy="562.5" r="56.699999999999996" fill="#f0fdfa"/>
+  <circle cx="450" cy="562.5" r="30.240000000000002" fill="#c9962e"/>
+
+  <!-- hanging bead -->
+  <path d="M450 902.7 v 79.38" stroke="#d13c5c" stroke-width="5" stroke-linecap="round"/>
+  <circle cx="450" cy="1006.6500000000001" r="26.46" fill="url(#metal)"/>
+
+  <!-- scattered sparkle -->
+  <g fill="#f4e3a8" opacity="0.5">
+    <circle cx="162" cy="180" r="4"/>
+    <circle cx="738" cy="247.5" r="5"/>
+    <circle cx="234" cy="933.75" r="4.5"/>
+    <circle cx="675" cy="888.75" r="3.5"/>
+    <circle cx="810" cy="686.25" r="3"/>
+    <circle cx="81" cy="630.0000000000001" r="3"/>
+  </g>
+</svg>
