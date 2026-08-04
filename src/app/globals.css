@@ -1,36 +1,36 @@
 @import "tailwindcss";
 
 @theme {
-  /* ---- Brand: festive maroon + gold on cream ---- */
-  --color-cream-50: #fefcf8;
-  --color-cream-100: #fdf8f1;
-  --color-cream-200: #f7ecdd;
-  --color-cream-300: #eeddc6;
+  /* ---- Brand: cinematic oxblood + antique gold, warm parchment ---- */
+  --color-cream-50: #fffdf9;
+  --color-cream-100: #fbf5ea;
+  --color-cream-200: #f2e4c8;
+  --color-cream-300: #e6cf9e;
 
-  --color-maroon-50: #fdf3f4;
-  --color-maroon-100: #fbe3e6;
-  --color-maroon-200: #f6cbd1;
-  --color-maroon-300: #ee9fac;
-  --color-maroon-400: #e26a82;
-  --color-maroon-500: #d13c5c;
-  --color-maroon-600: #b31f45;
-  --color-maroon-700: #8f1638;
-  --color-maroon-800: #6d1029;
-  --color-maroon-900: #4b0b1c;
-  --color-maroon-950: #2c0510;
+  --color-maroon-50: #fbedef;
+  --color-maroon-100: #f4d9dd;
+  --color-maroon-200: #e2aab3;
+  --color-maroon-300: #c97783;
+  --color-maroon-400: #a94f5c;
+  --color-maroon-500: #8a2f3f;
+  --color-maroon-600: #701f2f;
+  --color-maroon-700: #591826;
+  --color-maroon-800: #3f0f1b;
+  --color-maroon-900: #280a11;
+  --color-maroon-950: #12040a;
 
-  --color-gold-50: #fdfaef;
-  --color-gold-100: #faf2d6;
-  --color-gold-200: #f4e3a8;
-  --color-gold-300: #ebcd70;
-  --color-gold-400: #e0b544;
-  --color-gold-500: #c9962e;
-  --color-gold-600: #a97624;
-  --color-gold-700: #855720;
-  --color-gold-800: #6b4520;
-  --color-gold-900: #5a3a1e;
+  --color-gold-50: #fdfaf0;
+  --color-gold-100: #f8efd9;
+  --color-gold-200: #f0dfb0;
+  --color-gold-300: #e6c989;
+  --color-gold-400: #d8b562;
+  --color-gold-500: #c29a3d;
+  --color-gold-600: #a17b2c;
+  --color-gold-700: #7d5f22;
+  --color-gold-800: #5c4419;
+  --color-gold-900: #443217;
 
-  --color-ink: #1c1216;
+  --color-ink: #170f12;
   --color-ink-soft: #4a3b41;
   --color-ink-muted: #7d6b72;
 
@@ -39,9 +39,10 @@
 
   --radius-xl2: 1.25rem;
 
-  --shadow-soft: 0 1px 2px rgb(28 18 22 / 0.04), 0 8px 24px -8px rgb(28 18 22 / 0.10);
-  --shadow-lift: 0 2px 4px rgb(28 18 22 / 0.05), 0 18px 40px -12px rgb(28 18 22 / 0.18);
-  --shadow-gold: 0 10px 30px -10px rgb(201 150 46 / 0.45);
+  --shadow-soft: 0 1px 2px rgb(23 15 18 / 0.04), 0 8px 24px -8px rgb(23 15 18 / 0.10);
+  --shadow-lift: 0 2px 4px rgb(23 15 18 / 0.05), 0 18px 40px -12px rgb(23 15 18 / 0.18);
+  --shadow-gold: 0 10px 30px -10px rgb(194 154 61 / 0.5);
+  --shadow-glow: 0 0 1px rgb(230 201 137 / 0.4), 0 20px 60px -20px rgb(18 4 10 / 0.85);
 
   --animate-marquee: marquee 32s linear infinite;
   --animate-float-slow: floatSlow 9s ease-in-out infinite;
@@ -77,7 +78,9 @@
   }
 
   body {
-    background-color: var(--color-cream-100);
+    background:
+      radial-gradient(ellipse 1200px 600px at 50% -10%, var(--color-cream-200) 0%, transparent 60%),
+      var(--color-cream-100);
     color: var(--color-ink);
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
@@ -91,8 +94,8 @@
   }
 
   ::selection {
-    background: var(--color-maroon-700);
-    color: var(--color-cream-100);
+    background: var(--color-gold-400);
+    color: var(--color-maroon-950);
   }
 
   /* Inputs get a consistent premium base */
@@ -138,7 +141,7 @@
   .btn:disabled { opacity: 0.55; cursor: not-allowed; transform: none; }
 
   .btn-primary {
-    background: linear-gradient(135deg, var(--color-maroon-700), var(--color-maroon-600));
+    background: linear-gradient(135deg, var(--color-maroon-600), var(--color-maroon-900));
     color: var(--color-cream-50);
     box-shadow: var(--shadow-soft);
   }
@@ -148,11 +151,11 @@
   }
 
   .btn-gold {
-    background: linear-gradient(135deg, var(--color-gold-400), var(--color-gold-600));
+    background: linear-gradient(135deg, var(--color-gold-300) 0%, var(--color-gold-500) 55%, var(--color-gold-600) 100%);
     color: var(--color-maroon-950);
-    box-shadow: var(--shadow-gold);
+    box-shadow: var(--shadow-gold), inset 0 1px 0 rgb(255 250 235 / 0.4);
   }
-  .btn-gold:hover:not(:disabled) { transform: translateY(-1px); }
+  .btn-gold:hover:not(:disabled) { transform: translateY(-1px); box-shadow: var(--shadow-gold), inset 0 1px 0 rgb(255 250 235 / 0.55); }
 
   .btn-outline {
     border: 1.5px solid var(--color-maroon-700);
@@ -238,6 +241,23 @@
 
   .no-scrollbar::-webkit-scrollbar { display: none; }
   .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+  /* Filmic grain for dark cinematic sections (hero, header, footer, CTA banners).
+     Place as an absolutely-positioned sibling inside a `relative` container. */
+  .grain-overlay {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.06;
+    mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.55 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-size: 180px 180px;
+  }
+
+  /* Dark cinematic shell: header / footer / hero / promo banners */
+  .shell-dark {
+    background: linear-gradient(160deg, var(--color-maroon-950) 0%, var(--color-maroon-900) 55%, var(--color-maroon-950) 100%);
+  }
 }
 
 /* Invoices and packing slips print from the admin order page. */

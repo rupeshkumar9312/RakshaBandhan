@@ -37,9 +37,14 @@ export function SiteFooter() {
   const tel = SITE.phone.replace(/\s/g, "");
 
   return (
-    <footer className="mt-20 bg-maroon-950 text-cream-200">
+    <footer className="shell-dark relative mt-20 overflow-hidden text-cream-200">
+      <div aria-hidden className="grain-overlay" />
+      <div
+        aria-hidden
+        className="absolute -top-32 left-1/2 size-96 -translate-x-1/2 rounded-full bg-gold-500/10 blur-3xl"
+      />
       {/* Trust strip */}
-      <div className="border-b border-white/10">
+      <div className="relative border-b border-gold-400/12">
         <div className="container-x grid gap-6 py-8 sm:grid-cols-3">
           {[
             { Icon: TruckIcon, title: "Same-day society delivery", body: "Order before 6 PM" },
@@ -47,7 +52,7 @@ export function SiteFooter() {
             { Icon: ShieldIcon, title: "Damage-free promise", body: "Free replacement" },
           ].map(({ Icon, title, body }) => (
             <div key={title} className="flex items-center gap-3">
-              <span className="grid size-11 shrink-0 place-items-center rounded-full bg-white/8 text-gold-300">
+              <span className="grid size-11 shrink-0 place-items-center rounded-full bg-gradient-to-br from-gold-400/20 to-gold-600/10 text-gold-300 ring-1 ring-gold-400/20">
                 <Icon className="size-5.5" />
               </span>
               <div>
@@ -59,10 +64,10 @@ export function SiteFooter() {
         </div>
       </div>
 
-      <div className="container-x grid gap-10 py-12 sm:grid-cols-2 lg:grid-cols-5">
+      <div className="container-x relative grid gap-10 py-12 sm:grid-cols-2 lg:grid-cols-5">
         <div className="lg:col-span-2">
           <div className="flex items-center gap-2.5">
-            <span className="grid size-10 place-items-center rounded-full bg-gradient-to-br from-gold-400 to-gold-600 text-lg font-bold text-maroon-950">
+            <span className="grid size-10 place-items-center rounded-full bg-gradient-to-br from-gold-300 via-gold-500 to-gold-600 text-lg font-bold text-maroon-950 shadow-[var(--shadow-gold)]">
               ॐ
             </span>
             <span className="font-display text-xl font-bold text-cream-50">{SITE.name}</span>

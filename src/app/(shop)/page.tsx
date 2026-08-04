@@ -35,15 +35,16 @@ export default async function HomePage() {
             the headline sits on solid colour. */}
         {/* Heavier on phones: the headline runs the full width there and the
             gold type would otherwise sit on the bright rice bowl. */}
-        <div className="absolute inset-0 bg-gradient-to-br from-maroon-950/92 via-maroon-950/74 to-maroon-900/45 sm:from-maroon-950/80 sm:via-maroon-950/55 sm:to-maroon-900/25" />
-        <div className="absolute inset-0 bg-gradient-to-r from-maroon-950 from-5% via-maroon-950/72 via-42% to-transparent to-75%" />
+        <div className="absolute inset-0 bg-gradient-to-br from-maroon-950/95 via-maroon-950/80 to-maroon-900/50 sm:from-maroon-950/88 sm:via-maroon-950/62 sm:to-maroon-900/28" />
+        <div className="absolute inset-0 bg-gradient-to-r from-maroon-950 from-5% via-maroon-950/78 via-42% to-transparent to-75%" />
+        <div aria-hidden className="grain-overlay" />
         <div
           aria-hidden
-          className="absolute -right-24 -top-24 size-96 rounded-full bg-gold-500/18 blur-3xl animate-[floatSlow_9s_ease-in-out_infinite]"
+          className="absolute -right-24 -top-24 size-96 rounded-full bg-gold-500/20 blur-3xl animate-[floatSlow_9s_ease-in-out_infinite]"
         />
         <div
           aria-hidden
-          className="absolute -bottom-32 -left-20 size-80 rounded-full bg-maroon-500/25 blur-3xl"
+          className="absolute -bottom-32 -left-20 size-80 rounded-full bg-maroon-500/20 blur-3xl"
         />
 
         <div className="container-x relative grid min-h-[85vh] items-center gap-12 py-16 lg:grid-cols-[1.05fr_0.95fr] lg:py-24">
@@ -326,7 +327,8 @@ export default async function HomePage() {
 
       {/* ─────────────────── CTA ─────────────────── */}
       <section className="container-x pb-4">
-        <div className="relative overflow-hidden rounded-xl2 bg-gradient-to-br from-maroon-800 to-maroon-950 px-6 py-14 text-center sm:px-12 sm:py-20">
+        <div className="relative overflow-hidden rounded-xl2 bg-gradient-to-br from-maroon-800 via-maroon-900 to-maroon-950 px-6 py-14 text-center shadow-[var(--shadow-glow)] sm:px-12 sm:py-20">
+          <div aria-hidden className="grain-overlay" />
           <div
             aria-hidden
             className="absolute -right-16 -top-16 size-64 rounded-full bg-gold-500/20 blur-3xl"

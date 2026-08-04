@@ -54,14 +54,14 @@ export function SiteHeader({ categories }: { categories: NavCategory[] }) {
   return (
     <>
       {/* Announcement bar */}
-      <div className="relative overflow-hidden bg-maroon-900 text-cream-100">
+      <div className="relative overflow-hidden border-b border-gold-400/15 bg-maroon-950 text-cream-100">
         <div className="flex whitespace-nowrap py-2 animate-[marquee_32s_linear_infinite]">
           {[0, 1].map((k) => (
-            <div key={k} className="flex shrink-0 items-center gap-10 pr-10 text-xs font-medium">
+            <div key={k} className="flex shrink-0 items-center gap-10 pr-10 text-xs font-medium text-cream-200/90">
               <span>✦ Free delivery above ₹499</span>
               <span>✦ Cash on Delivery available</span>
               <span>✦ Same-day delivery inside {SITE.society.split(",")[0]}</span>
-              <span>✦ Raksha Bandhan — {SITE.festivalDate}</span>
+              <span className="text-gold-300">✦ Raksha Bandhan — {SITE.festivalDate}</span>
             </div>
           ))}
         </div>
@@ -69,30 +69,28 @@ export function SiteHeader({ categories }: { categories: NavCategory[] }) {
 
       <header
         className={cn(
-          "sticky top-0 z-40 transition-all duration-300",
-          scrolled
-            ? "bg-cream-50/92 shadow-[0_1px_20px_-8px_rgba(28,18,22,0.25)] backdrop-blur-lg"
-            : "bg-cream-100",
+          "shell-dark sticky top-0 z-40 border-b border-gold-400/10 transition-shadow duration-300",
+          scrolled && "shadow-[0_8px_30px_-12px_rgba(0,0,0,0.6)]",
         )}
       >
         <div className="container-x flex h-16 items-center gap-3 sm:h-18">
           <button
             onClick={() => setMenuOpen(true)}
             aria-label="Open menu"
-            className="-ml-2 grid size-10 place-items-center rounded-full text-ink transition-colors hover:bg-cream-200 lg:hidden"
+            className="-ml-2 grid size-10 place-items-center rounded-full text-cream-100 transition-colors hover:bg-white/8 lg:hidden"
           >
             <MenuIcon className="size-5.5" />
           </button>
 
           <Link href="/" className="flex items-center gap-2.5 shrink-0">
-            <span className="grid size-9 place-items-center rounded-full bg-gradient-to-br from-maroon-600 to-maroon-800 text-base font-bold text-gold-200 shadow-[var(--shadow-soft)] sm:size-10">
+            <span className="grid size-9 place-items-center rounded-full bg-gradient-to-br from-gold-300 via-gold-500 to-gold-600 text-base font-bold text-maroon-950 shadow-[var(--shadow-gold)] sm:size-10">
               ॐ
             </span>
             <span className="leading-none">
-              <span className="block font-display text-lg font-bold tracking-tight sm:text-xl">
+              <span className="block font-display text-lg font-bold tracking-tight text-cream-50 sm:text-xl">
                 {SITE.name}
               </span>
-              <span className="hidden text-[0.625rem] font-medium tracking-[0.18em] text-gold-600 uppercase sm:block">
+              <span className="hidden text-[0.625rem] font-medium tracking-[0.18em] text-gold-400 uppercase sm:block">
                 Noida
               </span>
             </span>
@@ -103,7 +101,7 @@ export function SiteHeader({ categories }: { categories: NavCategory[] }) {
               <Link
                 key={l.href}
                 href={l.href}
-                className="rounded-full px-3 py-2 text-sm font-medium text-ink-soft transition-colors hover:bg-cream-200 hover:text-maroon-800"
+                className="rounded-full px-3 py-2 text-sm font-medium text-cream-200/85 transition-colors hover:bg-white/8 hover:text-gold-300"
               >
                 {l.label}
               </Link>
@@ -115,7 +113,7 @@ export function SiteHeader({ categories }: { categories: NavCategory[] }) {
               onClick={() => setSearchOpen((v) => !v)}
               aria-label="Search"
               aria-expanded={searchOpen}
-              className="grid size-10 place-items-center rounded-full text-ink transition-colors hover:bg-cream-200"
+              className="grid size-10 place-items-center rounded-full text-cream-100 transition-colors hover:bg-white/8"
             >
               {searchOpen ? <CloseIcon className="size-5" /> : <SearchIcon className="size-5" />}
             </button>
@@ -123,11 +121,11 @@ export function SiteHeader({ categories }: { categories: NavCategory[] }) {
             <button
               onClick={openCart}
               aria-label={`Cart, ${count} items`}
-              className="relative grid size-10 place-items-center rounded-full text-ink transition-colors hover:bg-cream-200"
+              className="relative grid size-10 place-items-center rounded-full text-cream-100 transition-colors hover:bg-white/8"
             >
               <CartIcon className="size-5.5" />
               {hydrated && count > 0 && (
-                <span className="absolute -right-0.5 -top-0.5 grid min-w-5 place-items-center rounded-full bg-maroon-700 px-1 text-[0.625rem] font-bold text-cream-50 tabular-nums">
+                <span className="absolute -right-0.5 -top-0.5 grid min-w-5 place-items-center rounded-full bg-gradient-to-br from-gold-300 to-gold-500 px-1 text-[0.625rem] font-bold text-maroon-950 tabular-nums">
                   {count > 99 ? "99+" : count}
                 </span>
               )}
@@ -138,7 +136,7 @@ export function SiteHeader({ categories }: { categories: NavCategory[] }) {
         {/* Search bar */}
         <div
           className={cn(
-            "overflow-hidden border-cream-300 transition-all duration-300",
+            "overflow-hidden border-white/10 transition-all duration-300",
             searchOpen ? "max-h-24 border-t" : "max-h-0",
           )}
         >
@@ -154,7 +152,7 @@ export function SiteHeader({ categories }: { categories: NavCategory[] }) {
                 className="field pl-11"
               />
             </div>
-            <button type="submit" className="btn btn-primary btn-sm px-5">
+            <button type="submit" className="btn btn-gold btn-sm px-5">
               Search
             </button>
           </form>
@@ -173,26 +171,26 @@ export function SiteHeader({ categories }: { categories: NavCategory[] }) {
       <nav
         aria-label="Main menu"
         className={cn(
-          "fixed left-0 top-0 z-51 h-[100dvh] w-[82%] max-w-xs bg-cream-100 shadow-2xl transition-transform duration-350 ease-[cubic-bezier(0.16,1,0.3,1)] lg:hidden",
+          "shell-dark fixed left-0 top-0 z-51 h-[100dvh] w-[82%] max-w-xs text-cream-100 shadow-2xl transition-transform duration-350 ease-[cubic-bezier(0.16,1,0.3,1)] lg:hidden",
           menuOpen ? "translate-x-0" : "-translate-x-full",
         )}
       >
-        <div className="flex items-center justify-between border-b border-cream-300 px-5 py-4">
-          <span className="font-display text-lg font-bold">{SITE.name}</span>
+        <div className="flex items-center justify-between border-b border-white/10 px-5 py-4">
+          <span className="font-display text-lg font-bold text-cream-50">{SITE.name}</span>
           <button
             onClick={() => setMenuOpen(false)}
             aria-label="Close menu"
-            className="grid size-9 place-items-center rounded-full hover:bg-cream-200"
+            className="grid size-9 place-items-center rounded-full hover:bg-white/8"
           >
             <CloseIcon className="size-5" />
           </button>
         </div>
 
         <div className="overflow-y-auto p-3">
-          <p className="eyebrow px-3 pb-2 pt-3">Shop</p>
+          <p className="eyebrow px-3 pb-2 pt-3 text-gold-400">Shop</p>
           <Link
             href="/products"
-            className="block rounded-xl px-3 py-3 font-semibold transition-colors hover:bg-cream-200"
+            className="block rounded-xl px-3 py-3 font-semibold text-cream-50 transition-colors hover:bg-white/8"
           >
             All rakhis
           </Link>
@@ -200,14 +198,14 @@ export function SiteHeader({ categories }: { categories: NavCategory[] }) {
             <Link
               key={c.slug}
               href={`/products?category=${c.slug}`}
-              className="block rounded-xl px-3 py-3 text-ink-soft transition-colors hover:bg-cream-200"
+              className="block rounded-xl px-3 py-3 text-cream-200/85 transition-colors hover:bg-white/8"
             >
               {c.name}
             </Link>
           ))}
 
-          <div className="rule-gold my-3" />
-          <p className="eyebrow px-3 pb-2">More</p>
+          <div className="my-3 h-px bg-gradient-to-r from-transparent via-gold-400/35 to-transparent" />
+          <p className="eyebrow px-3 pb-2 text-gold-400">More</p>
           {[
             { href: "/about", label: "Our story" },
             { href: "/faq", label: "FAQ" },
@@ -216,7 +214,7 @@ export function SiteHeader({ categories }: { categories: NavCategory[] }) {
             <Link
               key={l.href}
               href={l.href}
-              className="block rounded-xl px-3 py-3 text-ink-soft transition-colors hover:bg-cream-200"
+              className="block rounded-xl px-3 py-3 text-cream-200/85 transition-colors hover:bg-white/8"
             >
               {l.label}
             </Link>
@@ -224,7 +222,7 @@ export function SiteHeader({ categories }: { categories: NavCategory[] }) {
 
           <a
             href={`tel:${SITE.phone.replace(/\s/g, "")}`}
-            className="btn btn-outline mt-4 w-full"
+            className="btn mt-4 w-full border border-gold-400/40 text-gold-300 hover:bg-gold-400 hover:text-maroon-950"
           >
             Call {SITE.phone}
           </a>
