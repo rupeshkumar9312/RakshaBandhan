@@ -230,6 +230,15 @@ export function GridIcon(p: IconProps) {
   );
 }
 
+export function TagIcon(p: IconProps) {
+  return (
+    <svg {...base} {...p}>
+      <path d="M11.5 3.5H6a2.5 2.5 0 0 0-2.5 2.5v5.5a2 2 0 0 0 .586 1.414l8 8a2 2 0 0 0 2.828 0l6.586-6.586a2 2 0 0 0 0-2.828l-8-8A2 2 0 0 0 11.5 3.5Z" />
+      <circle cx="8" cy="8" r="1.4" />
+    </svg>
+  );
+}
+
 export function GlobeIcon(p: IconProps) {
   return (
     <svg {...base} {...p}>

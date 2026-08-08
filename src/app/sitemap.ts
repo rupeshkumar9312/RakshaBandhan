@@ -3,6 +3,11 @@ import { prisma } from "@/lib/db";
 import { sortedPosts } from "@/lib/posts";
 import { SITE } from "@/lib/site";
 
+// Reads live product/category data, so this must run per-request rather than
+// at build time — otherwise `next build` needs DATABASE_URL to be reachable
+// during the build step, not just at runtime.
+export const dynamic = "force-dynamic";
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const base = SITE.url.replace(/\/$/, "");
 
