@@ -11,12 +11,14 @@
     "db:generate": "node scripts/prisma.mjs generate",
     "db:push": "node scripts/prisma.mjs db push",
     "db:seed": "tsx prisma/seed.ts",
+    "db:clear": "node --env-file=.env node_modules/tsx/dist/cli.mjs prisma/clear.ts",
     "db:studio": "node scripts/prisma.mjs studio",
     "db:setup": "npm run db:push && npm run db:generate && npm run db:seed",
     "db:reset": "node scripts/prisma.mjs db push --force-reset && npm run db:seed"
   },
   "dependencies": {
     "@prisma/client": "^5.22.0",
+    "@vercel/blob": "^2.7.0",
     "bcryptjs": "^2.4.3",
     "jose": "^5.9.6",
     "next": "^15.1.6",

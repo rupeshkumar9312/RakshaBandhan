@@ -81,9 +81,9 @@ npm run placeholders   # regenerate the placeholder artwork
 
 The seeded catalogue uses **locally generated SVG artwork** in `public/placeholders/` — no external image host, nothing to break offline. They look like rakhis, but they are stand-ins.
 
-Replace them with real photography via **Admin → Products → Edit → Images**. Uploads land in `public/uploads/` (JPG/PNG/WebP/AVIF/SVG, max 5 MB, 6 at a time). The upload route rejects unauthenticated requests and generates its own filenames rather than trusting the client's.
+Replace them with real photography via **Admin → Products → Edit → Images**. Uploads go to Vercel Blob (JPG/PNG/WebP/AVIF/SVG, max 5 MB, 6 at a time). The upload route rejects unauthenticated requests and generates its own filenames rather than trusting the client's.
 
-> On a multi-instance or read-only host (Vercel), swap `src/app/api/upload/route.ts` for S3, Cloudinary or Vercel Blob — the local filesystem won't persist there.
+> Requires a `BLOB_READ_WRITE_TOKEN` — see `.env.example`. Create a Blob store under the Storage tab in the Vercel dashboard and connect it to the project; Vercel injects the token automatically in production. For local dev, copy the token from the dashboard into `.env`.
 
 ---
 

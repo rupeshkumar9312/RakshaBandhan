@@ -1,0 +1,13 @@
+DATABASE_URL="postgresql://rakhi_db_user:CDFdpKGn0ew4LcV0UlcGbMTuh1yBBIwY@dpg-d9oova3ncjis73ecku20-a.oregon-postgres.render.com/rakhi_db"
+
+# Change this before deploying. Any long random string.
+AUTH_SECRET="rakhi-bazaar-dev-secret-change-me-in-production-0192837465"
+
+# Seeded admin credentials
+ADMIN_EMAIL="admin@rakhibazaar.in"
+ADMIN_PASSWORD="admin123"
+
+NEXT_PUBLIC_SITE_NAME="Gift Buddy"
+NEXT_PUBLIC_SITE_URL="http://localhost:3000"
+NEXT_PUBLIC_SUPPORT_PHONE="+91 75990 31402"
+NEXT_PUBLIC_SUPPORT_EMAIL="care@rakhibazaar.in"

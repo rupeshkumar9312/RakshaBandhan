@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { mkdir, writeFile } from "node:fs/promises";
-import { join, extname } from "node:path";
+import { put } from "@vercel/blob";
+import { extname } from "node:path";
 import { randomUUID } from "node:crypto";
 import { getSession } from "@/lib/auth";
 
@@ -13,11 +13,7 @@ const ALLOWED = new Map([
   ["image/svg+xml", ".svg"],
 ]);
 
-/**
- * Stores product images under /public/uploads. Fine for a single-server
- * deployment; move to object storage (S3/Cloudinary) if this ever runs on
- * multiple instances or a read-only filesystem like Vercel's.
- */
+/** Stores product images in Vercel Blob storage — needed since Vercel's filesystem is read-only at runtime. */
 export async function POST(request: Request) {
   const session = await getSession();
   if (!session) {
@@ -33,9 +29,6 @@ export async function POST(request: Request) {
   if (files.length > 6) {
     return NextResponse.json({ error: "Up to 6 images at a time" }, { status: 400 });
   }
-
-  const dir = join(process.cwd(), "public", "uploads");
-  await mkdir(dir, { recursive: true });
 
   const urls: string[] = [];
 
@@ -56,11 +49,13 @@ export async function POST(request: Request) {
     // Never trust the client filename — generate our own and force the
     // extension to match the validated MIME type.
     const ext = ALLOWED.get(file.type) ?? extname(file.name).toLowerCase();
-    const name = `${Date.now()}-${randomUUID().slice(0, 8)}${ext}`;
+    const name = `uploads/${Date.now()}-${randomUUID().slice(0, 8)}${ext}`;
 
-    const bytes = Buffer.from(await file.arrayBuffer());
-    await writeFile(join(dir, name), bytes);
-    urls.push(`/uploads/${name}`);
+    const blob = await put(name, file, {
+      access: "public",
+      contentType: file.type,
+    });
+    urls.push(blob.url);
   }
 
   return NextResponse.json({ urls });
