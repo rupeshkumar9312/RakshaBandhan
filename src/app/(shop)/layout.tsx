@@ -2,6 +2,7 @@ import { CartProvider } from "@/components/cart-provider";
 import { CartDrawer } from "@/components/cart-drawer";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
+import { VisitTracker } from "@/components/visit-tracker";
 import { getCategories } from "@/lib/queries";
 
 export default async function ShopLayout({ children }: { children: React.ReactNode }) {
@@ -10,6 +11,7 @@ export default async function ShopLayout({ children }: { children: React.ReactNo
 
   return (
     <CartProvider>
+      <VisitTracker />
       <div className="flex min-h-[100dvh] flex-col">
         <SiteHeader categories={nav} />
         <main className="flex-1">{children}</main>

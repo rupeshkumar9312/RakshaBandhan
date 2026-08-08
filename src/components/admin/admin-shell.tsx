@@ -11,6 +11,7 @@ import {
   PackageIcon,
   GridIcon,
   UsersIcon,
+  GlobeIcon,
   LogoutIcon,
   MenuIcon,
   CloseIcon,
@@ -22,6 +23,7 @@ const NAV = [
   { href: "/admin/orders", label: "Orders", Icon: PackageIcon },
   { href: "/admin/products", label: "Products", Icon: GridIcon },
   { href: "/admin/customers", label: "Customers", Icon: UsersIcon },
+  { href: "/admin/visitors", label: "Visitors", Icon: GlobeIcon },
 ];
 
 export function AdminShell({

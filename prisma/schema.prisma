@@ -156,6 +156,27 @@ model OrderItem {
   @@index([productId])
 }
 
+model Visit {
+  id        String   @id @default(cuid())
+  // Long-lived cookie value — groups multiple pageviews into one visitor.
+  visitorId String
+  path      String
+  referrer  String?
+  ip        String?
+  country   String?
+  region    String?
+  city      String?
+  // mobile | tablet | desktop
+  deviceType String?
+  browser    String?
+  os         String?
+  userAgent  String?
+  createdAt  DateTime @default(now())
+
+  @@index([visitorId])
+  @@index([createdAt])
+}
+
 model Review {
   id         String  @id @default(cuid())
   productId  String
