@@ -9,7 +9,7 @@ import { ChevronLeft, ChevronRight, SearchIcon } from "@/components/icons";
 export const metadata: Metadata = {
   title: "Shop all rakhis",
   description:
-    "Browse designer, silver, kids and bhaiya-bhabhi rakhis plus gift hampers. Cash on Delivery, free delivery above ₹499.",
+    "Browse designer, silver, kids and bhaiya-bhabhi rakhis plus gift hampers. Cash on Delivery, free delivery.",
 };
 
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;

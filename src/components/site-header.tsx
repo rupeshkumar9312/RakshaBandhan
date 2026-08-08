@@ -47,7 +47,9 @@ export function SiteHeader({ categories }: { categories: NavCategory[] }) {
 
   const navLinks = [
     { href: "/products", label: "All rakhis" },
-    ...categories.slice(0, 4).map((c) => ({ href: `/products?category=${c.slug}`, label: c.name })),
+    ...categories
+      .slice(0, 4)
+      .map((c) => ({ href: `/products?category=${c.slug}`, label: c.name })),
     { href: "/about", label: "Our story" },
   ];
 
@@ -57,11 +59,18 @@ export function SiteHeader({ categories }: { categories: NavCategory[] }) {
       <div className="relative overflow-hidden border-b border-gold-400/15 bg-maroon-950 text-cream-100">
         <div className="flex whitespace-nowrap py-2 animate-[marquee_32s_linear_infinite]">
           {[0, 1].map((k) => (
-            <div key={k} className="flex shrink-0 items-center gap-10 pr-10 text-xs font-medium text-cream-200/90">
-              <span>✦ Free delivery above ₹499</span>
+            <div
+              key={k}
+              className="flex shrink-0 items-center gap-10 pr-10 text-xs font-medium text-cream-200/90"
+            >
+              <span>✦ Free delivery</span>
               <span>✦ Cash on Delivery available</span>
-              <span>✦ Same-day delivery inside {SITE.society.split(",")[0]}</span>
-              <span className="text-gold-300">✦ Raksha Bandhan — {SITE.festivalDate}</span>
+              <span>
+                ✦ Same-day delivery inside {SITE.society.split(",")[0]}
+              </span>
+              <span className="text-gold-300">
+                ✦ Raksha Bandhan — {SITE.festivalDate}
+              </span>
             </div>
           ))}
         </div>
@@ -115,7 +124,11 @@ export function SiteHeader({ categories }: { categories: NavCategory[] }) {
               aria-expanded={searchOpen}
               className="grid size-10 place-items-center rounded-full text-cream-100 transition-colors hover:bg-white/8"
             >
-              {searchOpen ? <CloseIcon className="size-5" /> : <SearchIcon className="size-5" />}
+              {searchOpen ? (
+                <CloseIcon className="size-5" />
+              ) : (
+                <SearchIcon className="size-5" />
+              )}
             </button>
 
             <button
@@ -176,7 +189,9 @@ export function SiteHeader({ categories }: { categories: NavCategory[] }) {
         )}
       >
         <div className="flex items-center justify-between border-b border-white/10 px-5 py-4">
-          <span className="font-display text-lg font-bold text-cream-50">{SITE.name}</span>
+          <span className="font-display text-lg font-bold text-cream-50">
+            {SITE.name}
+          </span>
           <button
             onClick={() => setMenuOpen(false)}
             aria-label="Close menu"

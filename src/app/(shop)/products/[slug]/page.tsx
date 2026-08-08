@@ -5,15 +5,33 @@ import { ProductGallery } from "@/components/product-gallery";
 import { AddToCart } from "@/components/add-to-cart";
 import { ProductGrid } from "@/components/product-card";
 import { ReviewForm } from "@/components/review-form";
-import { getProductBySlug, getRelatedProducts, ratingSummary } from "@/lib/queries";
-import { formatPaise, discountPercent, FREE_SHIPPING_THRESHOLD } from "@/lib/money";
+import {
+  getProductBySlug,
+  getRelatedProducts,
+  ratingSummary,
+} from "@/lib/queries";
+import {
+  formatPaise,
+  discountPercent,
+  FREE_SHIPPING_THRESHOLD,
+} from "@/lib/money";
 import { parseTags, formatDate, estimatedDelivery } from "@/lib/utils";
 import { SITE } from "@/lib/site";
-import { StarIcon, TruckIcon, CashIcon, ShieldIcon, CheckIcon } from "@/components/icons";
+import {
+  StarIcon,
+  TruckIcon,
+  CashIcon,
+  ShieldIcon,
+  CheckIcon,
+} from "@/components/icons";
 
 type Params = Promise<{ slug: string }>;
 
-export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: {
+  params: Params;
+}): Promise<Metadata> {
   const { slug } = await params;
   const product = await getProductBySlug(slug);
   if (!product) return { title: "Product not found" };
@@ -92,7 +110,10 @@ export default async function ProductPage({ params }: { params: Params }) {
 
         <div className="grid gap-8 lg:grid-cols-2 lg:gap-14">
           <div className="lg:sticky lg:top-24 lg:self-start">
-            <ProductGallery images={product.images} productName={product.name} />
+            <ProductGallery
+              images={product.images}
+              productName={product.name}
+            />
           </div>
 
           <div>
@@ -102,10 +123,17 @@ export default async function ProductPage({ params }: { params: Params }) {
             </h1>
 
             {count > 0 && (
-              <a href="#reviews" className="mt-3 inline-flex items-center gap-2 text-sm">
+              <a
+                href="#reviews"
+                className="mt-3 inline-flex items-center gap-2 text-sm"
+              >
                 <span className="flex gap-0.5 text-gold-500">
                   {Array.from({ length: 5 }).map((_, i) => (
-                    <StarIcon key={i} filled={i < Math.round(average)} className="size-4" />
+                    <StarIcon
+                      key={i}
+                      filled={i < Math.round(average)}
+                      className="size-4"
+                    />
                   ))}
                 </span>
                 <span className="font-semibold">{average}</span>
@@ -124,11 +152,15 @@ export default async function ProductPage({ params }: { params: Params }) {
                   <span className="text-lg text-ink-muted line-through">
                     {formatPaise(product.compareAtPrice)}
                   </span>
-                  <span className="chip bg-maroon-100 text-maroon-800">{off}% off</span>
+                  <span className="chip bg-maroon-100 text-maroon-800">
+                    {off}% off
+                  </span>
                 </>
               )}
             </div>
-            <p className="mt-1 text-xs text-ink-muted">Inclusive of all taxes</p>
+            <p className="mt-1 text-xs text-ink-muted">
+              Inclusive of all taxes
+            </p>
 
             {product.shortDesc && (
               <p className="mt-5 text-[0.9375rem] leading-relaxed text-ink-soft">
@@ -139,7 +171,9 @@ export default async function ProductPage({ params }: { params: Params }) {
             {/* Stock signal */}
             <div className="mt-5">
               {product.inventory <= 0 ? (
-                <span className="chip bg-cream-200 text-ink-muted">Out of stock</span>
+                <span className="chip bg-cream-200 text-ink-muted">
+                  Out of stock
+                </span>
               ) : product.inventory <= 5 ? (
                 <span className="chip bg-maroon-100 text-maroon-800">
                   Hurry — only {product.inventory} left
@@ -173,7 +207,7 @@ export default async function ProductPage({ params }: { params: Params }) {
                 {
                   Icon: CashIcon,
                   title: "Cash on Delivery",
-                  body: `Pay at your door. Free delivery above ${formatPaise(FREE_SHIPPING_THRESHOLD)}.`,
+                  body: `Pay at your door. Free delivery. `,
                 },
                 {
                   Icon: ShieldIcon,
@@ -185,7 +219,9 @@ export default async function ProductPage({ params }: { params: Params }) {
                   <Icon className="mt-0.5 size-5 shrink-0 text-maroon-700" />
                   <div>
                     <p className="text-sm font-semibold">{title}</p>
-                    <p className="mt-0.5 text-xs leading-relaxed text-ink-muted">{body}</p>
+                    <p className="mt-0.5 text-xs leading-relaxed text-ink-muted">
+                      {body}
+                    </p>
                   </div>
                 </li>
               ))}
@@ -201,18 +237,26 @@ export default async function ProductPage({ params }: { params: Params }) {
               <dl className="mt-6 divide-y divide-cream-300 border-y border-cream-300 text-sm">
                 {product.material && (
                   <div className="flex gap-4 py-3">
-                    <dt className="w-28 shrink-0 font-semibold text-ink-soft">Material</dt>
+                    <dt className="w-28 shrink-0 font-semibold text-ink-soft">
+                      Material
+                    </dt>
                     <dd className="text-ink-muted">{product.material}</dd>
                   </div>
                 )}
                 {product.sku && (
                   <div className="flex gap-4 py-3">
-                    <dt className="w-28 shrink-0 font-semibold text-ink-soft">SKU</dt>
-                    <dd className="text-ink-muted tabular-nums">{product.sku}</dd>
+                    <dt className="w-28 shrink-0 font-semibold text-ink-soft">
+                      SKU
+                    </dt>
+                    <dd className="text-ink-muted tabular-nums">
+                      {product.sku}
+                    </dd>
                   </div>
                 )}
                 <div className="flex gap-4 py-3">
-                  <dt className="w-28 shrink-0 font-semibold text-ink-soft">Collection</dt>
+                  <dt className="w-28 shrink-0 font-semibold text-ink-soft">
+                    Collection
+                  </dt>
                   <dd className="text-ink-muted">{product.category.name}</dd>
                 </div>
               </dl>
@@ -235,10 +279,15 @@ export default async function ProductPage({ params }: { params: Params }) {
         </div>
 
         {/* Reviews */}
-        <section id="reviews" className="mt-16 scroll-mt-24 border-t border-cream-300 pt-12">
+        <section
+          id="reviews"
+          className="mt-16 scroll-mt-24 border-t border-cream-300 pt-12"
+        >
           <div className="grid gap-10 lg:grid-cols-[20rem_1fr]">
             <div>
-              <h2 className="font-display text-2xl font-bold sm:text-3xl">Customer reviews</h2>
+              <h2 className="font-display text-2xl font-bold sm:text-3xl">
+                Customer reviews
+              </h2>
               {count > 0 ? (
                 <div className="mt-4">
                   <div className="flex items-center gap-3">
@@ -248,7 +297,11 @@ export default async function ProductPage({ params }: { params: Params }) {
                     <div>
                       <span className="flex gap-0.5 text-gold-500">
                         {Array.from({ length: 5 }).map((_, i) => (
-                          <StarIcon key={i} filled={i < Math.round(average)} className="size-4" />
+                          <StarIcon
+                            key={i}
+                            filled={i < Math.round(average)}
+                            className="size-4"
+                          />
                         ))}
                       </span>
                       <p className="mt-1 text-xs text-ink-muted">
@@ -283,18 +336,30 @@ export default async function ProductPage({ params }: { params: Params }) {
                             {r.authorName.charAt(0).toUpperCase()}
                           </span>
                           <div>
-                            <p className="text-sm font-semibold">{r.authorName}</p>
-                            <p className="text-xs text-ink-muted">{formatDate(r.createdAt)}</p>
+                            <p className="text-sm font-semibold">
+                              {r.authorName}
+                            </p>
+                            <p className="text-xs text-ink-muted">
+                              {formatDate(r.createdAt)}
+                            </p>
                           </div>
                         </div>
                         <span className="flex gap-0.5 text-gold-500">
                           {Array.from({ length: 5 }).map((_, i) => (
-                            <StarIcon key={i} filled={i < r.rating} className="size-3.5" />
+                            <StarIcon
+                              key={i}
+                              filled={i < r.rating}
+                              className="size-3.5"
+                            />
                           ))}
                         </span>
                       </div>
-                      {r.title && <p className="mt-3.5 font-semibold">{r.title}</p>}
-                      <p className="mt-1.5 text-sm leading-relaxed text-ink-soft">{r.body}</p>
+                      {r.title && (
+                        <p className="mt-3.5 font-semibold">{r.title}</p>
+                      )}
+                      <p className="mt-1.5 text-sm leading-relaxed text-ink-soft">
+                        {r.body}
+                      </p>
                     </li>
                   ))}
                 </ul>

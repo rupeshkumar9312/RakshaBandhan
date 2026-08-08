@@ -81,7 +81,7 @@ export default async function HomePage() {
             </div>
 
             <ul className="mt-10 flex flex-wrap gap-x-6 gap-y-2.5 text-sm text-cream-200/75">
-              {["Cash on Delivery", "Free above ₹499", "Same-day in society"].map((t) => (
+              {["Cash on Delivery", "Free Delivery", "Same-day in society"].map((t) => (
                 <li key={t} className="flex items-center gap-1.5">
                   <CheckIcon className="size-4 text-gold-400" />
                   {t}
@@ -143,7 +143,7 @@ export default async function HomePage() {
         <SectionHead
           eyebrow="Browse by style"
           title="Find the right thread"
-          subtitle="Five collections, from ₹149 pocket-money rakhis to hallmarked sterling silver."
+          // subtitle="Five collections, from ₹149 pocket-money rakhis to hallmarked sterling silver."
         />
 
         <div className="mt-10 grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-3">

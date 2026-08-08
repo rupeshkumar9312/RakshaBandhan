@@ -105,7 +105,7 @@ export default async function BlogPostPage({ params }: { params: Params }) {
             Twenty designs, delivered the same evening
           </h2>
           <p className="mx-auto mt-3 max-w-md text-sm text-cream-200/75">
-            Cash on Delivery, free above ₹499, and we call before we come.
+            Cash on Delivery, free shipping, and we call before we come.
           </p>
           <Link href="/products" className="btn btn-gold mt-6">
             Shop the collection <ChevronRight className="size-4" />

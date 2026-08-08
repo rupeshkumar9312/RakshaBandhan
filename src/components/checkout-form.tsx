@@ -62,7 +62,11 @@ const DRAFT_KEY = "rb_checkout_draft";
 function PlaceOrderButton({ total }: { total: number }) {
   const { pending } = useFormStatus();
   return (
-    <button type="submit" disabled={pending} className="btn btn-primary w-full py-4 text-base">
+    <button
+      type="submit"
+      disabled={pending}
+      className="btn btn-primary w-full py-4 text-base"
+    >
       {pending ? "Placing your order…" : `Place order · ${formatPaise(total)}`}
     </button>
   );
@@ -71,7 +75,10 @@ function PlaceOrderButton({ total }: { total: number }) {
 export function CheckoutForm() {
   const router = useRouter();
   const { lines, hydrated, subtotal, shipping, total, clear } = useCart();
-  const [state, action] = useActionState<ActionState, FormData>(placeOrder, null);
+  const [state, action] = useActionState<ActionState, FormData>(
+    placeOrder,
+    null,
+  );
   const [step, setStep] = useState(0);
   const [values, setValues] = useState<Values>(EMPTY);
   const [localErrors, setLocalErrors] = useState<Record<string, string>>({});
@@ -123,30 +130,36 @@ export function CheckoutForm() {
     if (steps.length > 0) setStep(Math.min(...steps));
   }, [state]);
 
-  const set = (key: keyof Values) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setValues((v) => ({ ...v, [key]: e.target.value }));
-    setLocalErrors((p) => {
-      if (!p[key]) return p;
-      const next = { ...p };
-      delete next[key];
-      return next;
-    });
-  };
+  const set =
+    (key: keyof Values) =>
+    (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+      setValues((v) => ({ ...v, [key]: e.target.value }));
+      setLocalErrors((p) => {
+        if (!p[key]) return p;
+        const next = { ...p };
+        delete next[key];
+        return next;
+      });
+    };
 
   function validateStep(index: number): boolean {
     const next: Record<string, string> = {};
 
     if (index === 0) {
-      if (values.contactName.trim().length < 2) next.contactName = "Please enter your name";
+      if (values.contactName.trim().length < 2)
+        next.contactName = "Please enter your name";
       const phone = values.contactPhone.replace(/\D/g, "").slice(-10);
-      if (!/^[6-9]\d{9}$/.test(phone)) next.contactPhone = "Enter a valid 10-digit mobile number";
+      if (!/^[6-9]\d{9}$/.test(phone))
+        next.contactPhone = "Enter a valid 10-digit mobile number";
       if (values.contactEmail && !/^\S+@\S+\.\S+$/.test(values.contactEmail))
         next.contactEmail = "Enter a valid email";
     }
 
     if (index === 1) {
-      if (values.addressLine1.trim().length < 4) next.addressLine1 = "Please enter your address";
-      if (!/^[1-9]\d{5}$/.test(values.pincode.trim())) next.pincode = "Enter a valid 6-digit PIN";
+      if (values.addressLine1.trim().length < 4)
+        next.addressLine1 = "Please enter your address";
+      if (!/^[1-9]\d{5}$/.test(values.pincode.trim()))
+        next.pincode = "Enter a valid 6-digit PIN";
       if (values.city.trim().length < 2) next.city = "Enter your city";
     }
 
@@ -165,8 +178,12 @@ export function CheckoutForm() {
           <CartIcon className="size-9 text-ink-muted" />
         </div>
         <div>
-          <h2 className="font-display text-2xl font-bold">Nothing to check out</h2>
-          <p className="mt-2 text-sm text-ink-muted">Add a rakhi to your cart first.</p>
+          <h2 className="font-display text-2xl font-bold">
+            Nothing to check out
+          </h2>
+          <p className="mt-2 text-sm text-ink-muted">
+            Add a rakhi to your cart first.
+          </p>
         </div>
         <Link href="/products" className="btn btn-primary">
           Browse rakhis
@@ -227,9 +244,16 @@ export function CheckoutForm() {
 
         <form action={action}>
           {/* Everything is submitted at the end, so keep hidden inputs mounted. */}
-          <input type="hidden" name="items" value={JSON.stringify(
-            lines.map((l) => ({ productId: l.productId, quantity: l.quantity })),
-          )} />
+          <input
+            type="hidden"
+            name="items"
+            value={JSON.stringify(
+              lines.map((l) => ({
+                productId: l.productId,
+                quantity: l.quantity,
+              })),
+            )}
+          />
           {(Object.keys(values) as (keyof Values)[]).map((k) => (
             <input key={k} type="hidden" name={k} value={values[k]} />
           ))}
@@ -239,7 +263,8 @@ export function CheckoutForm() {
             <section className="card p-6">
               <h2 className="text-lg font-bold">Who is this for?</h2>
               <p className="mt-1 text-sm text-ink-muted">
-                We&apos;ll call this number when the delivery reaches your tower.
+                We&apos;ll call this number when the delivery reaches your
+                tower.
               </p>
 
               <div className="mt-6 space-y-4">
@@ -258,7 +283,7 @@ export function CheckoutForm() {
                   value={values.contactPhone}
                   onChange={set("contactPhone")}
                   error={errors.contactPhone}
-                  placeholder="98765 43210"
+                  placeholder="75990 31402"
                   type="tel"
                   inputMode="numeric"
                   autoComplete="tel"
@@ -357,7 +382,9 @@ export function CheckoutForm() {
                 <div>
                   <label htmlFor="customerNote" className="label">
                     Delivery instructions{" "}
-                    <span className="font-normal text-ink-muted">(optional)</span>
+                    <span className="font-normal text-ink-muted">
+                      (optional)
+                    </span>
                   </label>
                   <textarea
                     id="customerNote"
@@ -441,9 +468,12 @@ export function CheckoutForm() {
                 <div className="mt-4 flex items-center gap-3 rounded-xl border-2 border-maroon-700 bg-maroon-50 p-4">
                   <CashIcon className="size-6 shrink-0 text-maroon-700" />
                   <div>
-                    <p className="text-sm font-bold text-maroon-900">Cash on Delivery</p>
+                    <p className="text-sm font-bold text-maroon-900">
+                      Cash on Delivery
+                    </p>
                     <p className="mt-0.5 text-xs text-maroon-800/75">
-                      Pay {formatPaise(total)} to the delivery partner at your door.
+                      Pay {formatPaise(total)} to the delivery partner at your
+                      door.
                     </p>
                   </div>
                   <CheckIcon className="ml-auto size-5 shrink-0 text-maroon-700" />
@@ -459,11 +489,19 @@ export function CheckoutForm() {
                     <li key={l.productId} className="flex gap-3 py-3">
                       <div className="relative size-14 shrink-0 overflow-hidden rounded-lg bg-cream-200">
                         {l.image && (
-                          <Image src={l.image} alt="" fill sizes="56px" className="object-cover" />
+                          <Image
+                            src={l.image}
+                            alt=""
+                            fill
+                            sizes="56px"
+                            className="object-cover"
+                          />
                         )}
                       </div>
                       <div className="min-w-0 flex-1">
-                        <p className="line-clamp-1 text-sm font-medium">{l.name}</p>
+                        <p className="line-clamp-1 text-sm font-medium">
+                          {l.name}
+                        </p>
                         <p className="text-xs text-ink-muted">
                           {l.quantity} × {formatPaise(l.price)}
                         </p>
@@ -482,7 +520,9 @@ export function CheckoutForm() {
                 const orphans = Object.entries(errors)
                   .filter(([k]) => k !== "form" && FIELD_STEP[k] == null)
                   .map(([, v]) => v);
-                const messages = [errors.form, ...orphans].filter(Boolean) as string[];
+                const messages = [errors.form, ...orphans].filter(
+                  Boolean,
+                ) as string[];
                 if (messages.length === 0) return null;
                 return (
                   <div className="rounded-xl bg-maroon-50 px-4 py-3 text-sm font-medium text-maroon-800">
@@ -528,13 +568,21 @@ export function CheckoutForm() {
               <li key={l.productId} className="flex gap-3">
                 <div className="relative size-12 shrink-0 overflow-hidden rounded-lg bg-cream-200">
                   {l.image && (
-                    <Image src={l.image} alt="" fill sizes="48px" className="object-cover" />
+                    <Image
+                      src={l.image}
+                      alt=""
+                      fill
+                      sizes="48px"
+                      className="object-cover"
+                    />
                   )}
                   <span className="absolute -right-1 -top-1 grid size-5 place-items-center rounded-full bg-maroon-700 text-[0.625rem] font-bold text-cream-50">
                     {l.quantity}
                   </span>
                 </div>
-                <p className="line-clamp-2 flex-1 text-xs leading-snug text-ink-soft">{l.name}</p>
+                <p className="line-clamp-2 flex-1 text-xs leading-snug text-ink-soft">
+                  {l.name}
+                </p>
                 <span className="text-xs font-semibold tabular-nums">
                   {formatPaise(l.price * l.quantity)}
                 </span>
@@ -545,18 +593,26 @@ export function CheckoutForm() {
           <dl className="mt-5 space-y-2 border-t border-cream-300 pt-4 text-sm">
             <div className="flex justify-between">
               <dt className="text-ink-soft">Subtotal</dt>
-              <dd className="font-semibold tabular-nums">{formatPaise(subtotal)}</dd>
+              <dd className="font-semibold tabular-nums">
+                {formatPaise(subtotal)}
+              </dd>
             </div>
             <div className="flex justify-between">
               <dt className="text-ink-soft">Delivery</dt>
               <dd className="font-semibold tabular-nums">
-                {shipping === 0 ? <span className="text-emerald-700">Free</span> : formatPaise(shipping)}
+                {shipping === 0 ? (
+                  <span className="text-emerald-700">Free</span>
+                ) : (
+                  formatPaise(shipping)
+                )}
               </dd>
             </div>
             <div className="rule-gold my-2" />
             <div className="flex justify-between text-base">
               <dt className="font-bold">Total</dt>
-              <dd className="font-bold tabular-nums text-maroon-800">{formatPaise(total)}</dd>
+              <dd className="font-bold tabular-nums text-maroon-800">
+                {formatPaise(total)}
+              </dd>
             </div>
           </dl>
 
@@ -591,7 +647,10 @@ function Field({
   return (
     <div>
       <label htmlFor={id} className="label">
-        {label} {optional && <span className="font-normal text-ink-muted">(optional)</span>}
+        {label}{" "}
+        {optional && (
+          <span className="font-normal text-ink-muted">(optional)</span>
+        )}
       </label>
       <div className="relative">
         {prefix && (
