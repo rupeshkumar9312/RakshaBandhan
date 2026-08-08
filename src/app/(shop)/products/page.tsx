@@ -48,7 +48,7 @@ export default async function ProductsPage({ searchParams }: { searchParams: Sea
       <section className="border-b border-cream-300 bg-gradient-to-b from-cream-50 to-cream-100">
         <div className="container-x py-10 sm:py-14">
           <nav aria-label="Breadcrumb" className="mb-3 text-xs text-ink-muted">
-            <Link href="/" className="hover:text-maroon-700">
+            <Link href="/rakhi-bazaar" className="hover:text-maroon-700">
               Home
             </Link>
             <span className="mx-1.5">/</span>

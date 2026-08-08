@@ -92,7 +92,7 @@ export default async function ProductPage({ params }: { params: Params }) {
 
       <div className="container-x py-6 sm:py-10">
         <nav aria-label="Breadcrumb" className="mb-6 text-xs text-ink-muted">
-          <Link href="/" className="hover:text-maroon-700">
+          <Link href="/rakhi-bazaar" className="hover:text-maroon-700">
             Home
           </Link>
           <span className="mx-1.5">/</span>

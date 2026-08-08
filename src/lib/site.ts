@@ -1,11 +1,17 @@
 export const SITE = {
-  name: process.env.NEXT_PUBLIC_SITE_NAME ?? "Rakhi Bazaar",
+  name: process.env.NEXT_PUBLIC_SITE_NAME ?? "Gift Buddy",
   url: process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000",
-  tagline: "Handpicked rakhis, delivered to your door in Noida",
+  tagline: "Your Gifting Partner",
   phone: process.env.NEXT_PUBLIC_SUPPORT_PHONE ?? "+91 7599031402",
   email: process.env.NEXT_PUBLIC_SUPPORT_EMAIL ?? "care@rakhibazaar.in",
   society: "The Golden Palms, Sector 168, Noida",
   festivalDate: "28 August 2026",
+} as const;
+
+/** The Raksha Bandhan storefront — the first occasion live inside Gift Buddy. */
+export const RAKHI_BRAND = {
+  name: "Rakhi Bazaar",
+  tagline: "Handpicked rakhis, delivered to your door in Noida",
 } as const;
 
 export const TRUST_POINTS = [
