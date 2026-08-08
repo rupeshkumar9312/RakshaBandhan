@@ -230,6 +230,25 @@ export function GridIcon(p: IconProps) {
   );
 }
 
+export function GlobeIcon(p: IconProps) {
+  return (
+    <svg {...base} {...p}>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18" />
+    </svg>
+  );
+}
+
+export function DeviceIcon(p: IconProps) {
+  return (
+    <svg {...base} {...p}>
+      <rect x="2.5" y="4" width="14" height="10" rx="1.5" />
+      <path d="M6.5 20h6M9.5 14v6" />
+      <rect x="17.5" y="9" width="4.5" height="8" rx="1" />
+    </svg>
+  );
+}
+
 export function LogoutIcon(p: IconProps) {
   return (
     <svg {...base} {...p}>
