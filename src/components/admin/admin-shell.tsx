@@ -16,6 +16,7 @@ import {
   LogoutIcon,
   MenuIcon,
   CloseIcon,
+  LogoMark,
 } from "@/components/icons";
 import type { AdminSession } from "@/lib/auth";
 
@@ -68,8 +69,8 @@ export function AdminShell({
       {/* Desktop sidebar */}
       <aside className="sticky top-0 hidden h-[100dvh] w-64 shrink-0 flex-col bg-maroon-950 p-4 lg:flex">
         <Link href="/admin" className="flex items-center gap-2.5 px-2 py-3">
-          <span className="grid size-9 place-items-center rounded-full bg-gradient-to-br from-gold-400 to-gold-600 text-base font-bold text-maroon-950">
-            ॐ
+          <span className="grid size-9 place-items-center rounded-full bg-gradient-to-br from-gold-400 to-gold-600 text-maroon-950">
+            <LogoMark className="size-5" />
           </span>
           <span>
             <span className="block font-display text-base font-bold text-cream-50">
