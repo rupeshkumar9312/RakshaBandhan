@@ -40,8 +40,8 @@ export function discountPercent(price: number, compareAt?: number | null): numbe
 }
 
 /** Free delivery inside the society above this cart value. */
-export const FREE_SHIPPING_THRESHOLD = 49900; // ₹499
-export const SHIPPING_FEE = 4900; // ₹49
+export const FREE_SHIPPING_THRESHOLD = 0; // ₹499
+export const SHIPPING_FEE = 0; // ₹49
 
 export function shippingFor(subtotal: number): number {
   if (subtotal <= 0) return 0;

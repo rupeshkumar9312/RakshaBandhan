@@ -47,7 +47,7 @@ const EMPTY: Values = {
   contactName: "",
   contactPhone: "",
   contactEmail: "",
-  addressLine1: "Amrapali Silicon City",
+  addressLine1: "",
   tower: "",
   flat: "",
   landmark: "",
@@ -132,7 +132,7 @@ export function CheckoutForm() {
 
   const set =
     (key: keyof Values) =>
-    (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
       setValues((v) => ({ ...v, [key]: e.target.value }));
       setLocalErrors((p) => {
         if (!p[key]) return p;
@@ -156,8 +156,8 @@ export function CheckoutForm() {
     }
 
     if (index === 1) {
-      if (values.addressLine1.trim().length < 4)
-        next.addressLine1 = "Please enter your address";
+      if (values.addressLine1.trim().length < 2)
+        next.addressLine1 = "Please select your society";
       if (!/^[1-9]\d{5}$/.test(values.pincode.trim()))
         next.pincode = "Enter a valid 6-digit PIN";
       if (values.city.trim().length < 2) next.city = "Enter your city";
@@ -321,20 +321,39 @@ export function CheckoutForm() {
               </p>
 
               <div className="mt-6 space-y-4">
-                <Field
-                  label="Society / building"
-                  name="addressLine1"
-                  value={values.addressLine1}
-                  onChange={set("addressLine1")}
-                  error={errors.addressLine1}
-                  placeholder="Amrapali Silicon City"
-                  autoComplete="address-line1"
-                />
+                <div>
+                  <label htmlFor="f-addressLine1" className="label">
+                    Society / building
+                  </label>
+                  <select
+                    id="f-addressLine1"
+                    name="addressLine1"
+                    value={values.addressLine1}
+                    onChange={set("addressLine1")}
+                    aria-invalid={Boolean(errors.addressLine1)}
+                    aria-describedby={
+                      errors.addressLine1 ? "f-addressLine1-err" : undefined
+                    }
+                    className={cn("field", errors.addressLine1 && "field-error")}
+                  >
+                    <option value="" disabled>
+                      Select your society
+                    </option>
+                    <option value="The Golden Palms">The Golden Palms</option>
+                    <option value="Paras Seasons">Paras Seasons</option>
+                    <option value="Lotus Zing">Lotus Zing</option>
+                  </select>
+                  {errors.addressLine1 && (
+                    <p id="f-addressLine1-err" className="mt-1 text-xs text-maroon-600">
+                      {errors.addressLine1}
+                    </p>
+                  )}
+                </div>
 
                 <div className="grid grid-cols-2 gap-3">
                   <Field
                     label="Tower"
-                    optional
+                    
                     name="tower"
                     value={values.tower}
                     onChange={set("tower")}
@@ -342,7 +361,7 @@ export function CheckoutForm() {
                   />
                   <Field
                     label="Flat no."
-                    optional
+                    
                     name="flat"
                     value={values.flat}
                     onChange={set("flat")}
@@ -356,7 +375,7 @@ export function CheckoutForm() {
                   name="landmark"
                   value={values.landmark}
                   onChange={set("landmark")}
-                  placeholder="Near Sector 76 Metro"
+                  placeholder=""
                 />
 
                 <div className="grid grid-cols-2 gap-3">

@@ -18,9 +18,9 @@ export default function ShippingPage() {
     >
       <div className="grid gap-6 sm:grid-cols-3">
         {[
-          { title: "Delivery charge", value: formatPaise(SHIPPING_FEE), note: `Free above ${formatPaise(FREE_SHIPPING_THRESHOLD)}` },
-          { title: "Society delivery", value: "Same day", note: "Order before 6 PM" },
-          { title: "Rest of Noida", value: "Next day", note: "Via local partner" },
+          { title: "Delivery charge", value: formatPaise(0), note: `Free` },
+          { title: "Society delivery", value: "Same day", note: "Order before 9 PM" },
+          // { title: "Rest of Noida", value: "Next day", note: "Via local partner" },
         ].map((s) => (
           <div key={s.title} className="card p-5">
             <p className="text-xs font-semibold tracking-wide text-ink-muted uppercase">
@@ -36,8 +36,8 @@ export default function ShippingPage() {
         <Prose>
           <h2>Where we deliver</h2>
           <p>
-            We deliver across Noida, with same-day service inside {SITE.society}. Orders placed
-            before 6 PM in the society reach you the same evening; anything later goes out the next
+            We deliver with same-day service inside {SITE.society}, Paras Seasons and Lotus Zing. Orders placed
+            before 9 PM in the society reach you the same evening; anything later goes out the next
             morning.
           </p>
           <p>
@@ -50,15 +50,15 @@ export default function ShippingPage() {
             <li>
               Flat {formatPaise(SHIPPING_FEE)} delivery on all orders.
             </li>
-            <li>
+            {/* <li>
               Free delivery once your cart crosses {formatPaise(FREE_SHIPPING_THRESHOLD)}.
-            </li>
+            </li> */}
             <li>No packaging charges, no handling fees, no surprises at the door.</li>
           </ul>
 
           <h2>Payment</h2>
           <p>
-            Cash on Delivery is the only payment method. Please keep the exact amount ready where
+            Cash on Delivery/UPI is the only payment method.If you're paying in Cash, please keep the exact amount ready, where
             possible — our delivery partners rarely carry much change during the rush.
           </p>
 
@@ -91,7 +91,7 @@ export default function ShippingPage() {
           <h2>Festival week</h2>
           <p>
             In the three days before Raksha Bandhan our volumes roughly triple. We keep same-day
-            delivery running inside the society, but the rest of Noida may slip to 48 hours. Order
+            delivery running inside the society. Order
             early if you can — we will always tell you the truth about timing when you call.
           </p>
         </Prose>

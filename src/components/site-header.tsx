@@ -66,8 +66,15 @@ export function SiteHeader({ categories }: { categories: NavCategory[] }) {
               <span>✦ Free delivery</span>
               <span>✦ Cash on Delivery available</span>
               <span>
-                ✦ Same-day delivery inside {SITE.society.split(",")[0]}
+                ✦ Same-day delivery inside {SITE.society.split(",")[0]}, Sector 168, Noida
               </span>
+              <span>
+                ✦ Same-day delivery inside Paras Seasons, Sector 168, Noida
+              </span>
+              <span>
+                ✦ Same-day delivery inside Lotus Zing, Sector 168, Noida
+              </span>
+
               <span className="text-gold-300">
                 ✦ Raksha Bandhan — {SITE.festivalDate}
               </span>

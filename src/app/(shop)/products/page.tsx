@@ -60,7 +60,7 @@ export default async function ProductsPage({ searchParams }: { searchParams: Sea
           </h1>
           <p className="mt-3 max-w-2xl text-[0.9375rem] leading-relaxed text-ink-muted">
             {activeCategory?.description ??
-              "Twenty-odd designs across five collections — from ₹149 kids rakhis to hallmarked sterling silver. Everything ships same-day inside the society."}
+              "Everything ships same-day inside the society."}
           </p>
         </div>
       </section>

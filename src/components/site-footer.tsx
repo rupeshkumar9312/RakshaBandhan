@@ -57,7 +57,7 @@ export function SiteFooter() {
             {
               Icon: TruckIcon,
               title: "Same-day society delivery",
-              body: "Order before 6 PM",
+              body: "Order before 9 PM",
             },
             {
               Icon: CashIcon,

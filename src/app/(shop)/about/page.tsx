@@ -14,7 +14,7 @@ export default function AboutPage() {
   return (
     <PageShell
       eyebrow="Our story"
-      title="A rakhi shop run from Tower G"
+      title="A rakhi shop run from your society"
       intro="We are not a marketplace. We are a few neighbours who got tired of the annual scramble and decided to fix it for our own society first."
     >
       <div className="grid gap-12 lg:grid-cols-[1fr_20rem]">
@@ -37,8 +37,7 @@ export default function AboutPage() {
           <h2>Where the rakhis come from</h2>
           <p>
             We buy directly from — the same workshops that supply the larger
-            brands, minus the layers in between. That is the whole reason a
-            hand-set kundan rakhi here costs ₹349 instead of ₹900.
+            brands, minus the layers in between.
           </p>
           <p>
             Every piece is checked by hand before it is boxed. Thread strength,
@@ -49,13 +48,13 @@ export default function AboutPage() {
           <h2>How delivery works</h2>
           <ul>
             <li>
-              <strong>Inside the society:</strong> order before 6 PM and one of
+              <strong>Inside the society:</strong> order before 9 PM and one of
               us walks it to your tower the same evening.
             </li>
-            <li>
+            {/* <li>
               <strong>Elsewhere in Noida:</strong> next-day delivery through a
               local partner.
-            </li>
+            </li> */}
             <li>
               <strong>Payment:</strong> Cash / UPI.
             </li>
@@ -69,13 +68,6 @@ export default function AboutPage() {
             add other options when enough people ask.
           </p> */}
 
-          <h2>What we are still bad at</h2>
-          <p>
-            Photography, mostly. The images on this site are placeholders until
-            we get proper product shots done. If a rakhi arrives and looks
-            different from the picture, that is on us — tell us and we will
-            replace it.
-          </p>
         </Prose>
 
         <aside className="space-y-5">
