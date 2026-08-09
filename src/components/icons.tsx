@@ -249,6 +249,15 @@ export function DeviceIcon(p: IconProps) {
   );
 }
 
+export function TagIcon(p: IconProps) {
+  return (
+    <svg {...base} {...p}>
+      <path d="M11.5 3.5H5a1.5 1.5 0 0 0-1.5 1.5v6.5a1.5 1.5 0 0 0 .44 1.06l8 8a1.5 1.5 0 0 0 2.12 0l6.5-6.5a1.5 1.5 0 0 0 0-2.12l-8-8a1.5 1.5 0 0 0-1.06-.44Z" />
+      <circle cx="8.25" cy="8.25" r="1.35" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}
+
 export function LogoutIcon(p: IconProps) {
   return (
     <svg {...base} {...p}>

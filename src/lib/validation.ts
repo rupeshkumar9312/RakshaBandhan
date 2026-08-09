@@ -78,6 +78,15 @@ export const productSchema = z.object({
   images: z.array(z.string().trim().min(1)).default([]),
 });
 
+export const categorySchema = z.object({
+  name: z.string().trim().min(2, "Name is required").max(80),
+  slug: optionalText(80),
+  description: optionalText(300),
+  imageUrl: optionalText(500),
+  sortOrder: z.coerce.number().int().min(0).max(9999).default(0),
+  isActive: z.coerce.boolean().default(true),
+});
+
 export const reviewSchema = z.object({
   productId: z.string().min(1),
   authorName: z.string().trim().min(2, "Please enter your name").max(60),
