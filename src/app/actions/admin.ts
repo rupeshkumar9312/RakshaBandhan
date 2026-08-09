@@ -10,7 +10,7 @@ import {
   requireSession,
   setSessionCookie,
 } from "@/lib/auth";
-import { loginSchema, productSchema, fieldErrors } from "@/lib/validation";
+import { loginSchema, productSchema, categorySchema, fieldErrors } from "@/lib/validation";
 import { rupeesToPaise } from "@/lib/money";
 import { slugify, serializeTags, ORDER_STATUSES, type OrderStatus } from "@/lib/utils";
 
@@ -271,27 +271,113 @@ export async function saveOrderNote(formData: FormData) {
 
 /* ───────────────────────── Categories ───────────────────────── */
 
-export async function createCategory(formData: FormData) {
+function readCategoryForm(formData: FormData) {
+  return {
+    name: formData.get("name"),
+    slug: formData.get("slug"),
+    description: formData.get("description"),
+    imageUrl: formData.get("imageUrl"),
+    sortOrder: formData.get("sortOrder") || 0,
+    isActive: formData.get("isActive") === "on",
+  };
+}
+
+/** Ensures the slug is unique, appending -2, -3, … when it isn't. */
+async function uniqueCategorySlug(base: string, excludeId?: string): Promise<string> {
+  let candidate = base;
+  let n = 1;
+  for (;;) {
+    const clash = await prisma.category.findFirst({
+      where: { slug: candidate, ...(excludeId ? { NOT: { id: excludeId } } : {}) },
+      select: { id: true },
+    });
+    if (!clash) return candidate;
+    n += 1;
+    candidate = `${base}-${n}`;
+  }
+}
+
+export async function createCategory(
+  _prev: AdminActionState,
+  formData: FormData,
+): Promise<AdminActionState> {
   await requireSession();
-  const name = String(formData.get("name") ?? "").trim();
-  const description = String(formData.get("description") ?? "").trim();
-  if (name.length < 2) return;
 
-  const base = slugify(name);
-  const existing = await prisma.category.findUnique({ where: { slug: base } });
-  if (existing) return;
+  const parsed = categorySchema.safeParse(readCategoryForm(formData));
+  if (!parsed.success) return { ok: false, errors: fieldErrors(parsed.error) };
 
+  const d = parsed.data;
+  const slug = await uniqueCategorySlug(slugify(d.slug || d.name));
   const count = await prisma.category.count();
+
   await prisma.category.create({
     data: {
-      name,
-      slug: base,
-      description: description || null,
-      sortOrder: count + 1,
-      imageUrl: `/placeholders/banner-0${(count % 6) + 1}.svg`,
+      name: d.name,
+      slug,
+      description: d.description ?? null,
+      // Falls back to a placeholder banner so the storefront never shows a
+      // broken image — swap it for a real photo from the edit page.
+      imageUrl: d.imageUrl || `/placeholders/banner-0${(count % 6) + 1}.svg`,
+      sortOrder: d.sortOrder || count + 1,
+      isActive: d.isActive,
     },
   });
 
   revalidatePath("/admin/categories");
   revalidatePath("/products");
+  revalidatePath("/rakhi-bazaar");
+  redirect("/admin/categories?created=1");
+}
+
+export async function updateCategory(
+  _prev: AdminActionState,
+  formData: FormData,
+): Promise<AdminActionState> {
+  await requireSession();
+
+  const id = String(formData.get("id") ?? "");
+  if (!id) return { ok: false, errors: { form: "Missing category id." } };
+
+  const parsed = categorySchema.safeParse(readCategoryForm(formData));
+  if (!parsed.success) return { ok: false, errors: fieldErrors(parsed.error) };
+
+  const d = parsed.data;
+  const slug = await uniqueCategorySlug(slugify(d.slug || d.name), id);
+
+  await prisma.category.update({
+    where: { id },
+    data: {
+      name: d.name,
+      slug,
+      description: d.description ?? null,
+      imageUrl: d.imageUrl || null,
+      sortOrder: d.sortOrder,
+      isActive: d.isActive,
+    },
+  });
+
+  revalidatePath("/admin/categories");
+  revalidatePath("/products");
+  revalidatePath("/rakhi-bazaar");
+  redirect("/admin/categories?updated=1");
+}
+
+export async function deleteCategory(formData: FormData) {
+  await requireSession();
+  const id = String(formData.get("id") ?? "");
+  if (!id) return;
+
+  // Products reference categories with onDelete: Restrict, so a category
+  // that's still in use gets hidden from the storefront instead of removed.
+  const productCount = await prisma.product.count({ where: { categoryId: id } });
+
+  if (productCount > 0) {
+    await prisma.category.update({ where: { id }, data: { isActive: false } });
+  } else {
+    await prisma.category.delete({ where: { id } });
+  }
+
+  revalidatePath("/admin/categories");
+  revalidatePath("/products");
+  revalidatePath("/rakhi-bazaar");
 }

@@ -1,6 +1,8 @@
+import Image from "next/image";
+import Link from "next/link";
 import { prisma } from "@/lib/db";
-import { CategoryForm } from "@/components/admin/category-form";
-import { TagIcon } from "@/components/icons";
+import { deleteCategory } from "@/app/actions/admin";
+import { TagIcon, PlusIcon, TrashIcon } from "@/components/icons";
 
 export const metadata = { title: "Categories" };
 
@@ -12,17 +14,19 @@ export default async function AdminCategoriesPage() {
 
   return (
     <div className="space-y-5">
-      <header>
-        <h1 className="font-display text-2xl font-bold sm:text-3xl">Categories</h1>
-        <p className="mt-1 text-sm text-ink-muted">
-          {categories.length} categor{categories.length === 1 ? "y" : "ies"} · products need a
-          category before they can be added
-        </p>
-      </header>
+      <header className="flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <h1 className="font-display text-2xl font-bold sm:text-3xl">Categories</h1>
+          <p className="mt-1 text-sm text-ink-muted">
+            {categories.length} categor{categories.length === 1 ? "y" : "ies"} · banner images
+            shown on the homepage
+          </p>
+        </div>
 
-      <div className="card p-5">
-        <CategoryForm />
-      </div>
+        <Link href="/admin/categories/new" className="btn btn-primary btn-sm">
+          <PlusIcon className="size-4" /> New category
+        </Link>
+      </header>
 
       {categories.length === 0 ? (
         <div className="card flex flex-col items-center gap-3 px-6 py-20 text-center">
@@ -30,38 +34,66 @@ export default async function AdminCategoriesPage() {
             <TagIcon className="size-6 text-ink-muted" />
           </div>
           <p className="font-semibold">No categories yet</p>
-          <p className="max-w-xs text-sm text-ink-muted">
-            Add one above — you&apos;ll need at least one before you can create a product.
-          </p>
+          <Link href="/admin/categories/new" className="btn btn-primary btn-sm mt-2">
+            Create your first category
+          </Link>
         </div>
       ) : (
-        <div className="card overflow-x-auto">
-          <table className="w-full min-w-[30rem] text-sm">
-            <thead className="border-b border-cream-300 bg-cream-50 text-left">
-              <tr>
-                <th className="px-4 py-3 text-xs font-semibold tracking-wide text-ink-muted uppercase">
-                  Name
-                </th>
-                <th className="px-4 py-3 text-xs font-semibold tracking-wide text-ink-muted uppercase">
-                  Description
-                </th>
-                <th className="px-4 py-3 text-right text-xs font-semibold tracking-wide text-ink-muted uppercase">
-                  Products
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-cream-300">
-              {categories.map((c) => (
-                <tr key={c.id}>
-                  <td className="px-4 py-3 font-medium">{c.name}</td>
-                  <td className="px-4 py-3 text-ink-muted">{c.description ?? "—"}</td>
-                  <td className="px-4 py-3 text-right font-semibold tabular-nums">
-                    {c._count.products}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {categories.map((c) => (
+            <div key={c.id} className="card group overflow-hidden">
+              <Link
+                href={`/admin/categories/${c.id}`}
+                className="relative block aspect-3/2 overflow-hidden bg-cream-200"
+              >
+                {c.imageUrl && (
+                  <Image
+                    src={c.imageUrl}
+                    alt={c.name}
+                    fill
+                    sizes="(max-width: 640px) 100vw, 33vw"
+                    className="object-cover transition-transform duration-500 group-hover:scale-105"
+                  />
+                )}
+                {!c.isActive && (
+                  <span className="absolute left-2.5 top-2.5 chip bg-ink/80 text-cream-50">
+                    Hidden
+                  </span>
+                )}
+              </Link>
+
+              <div className="flex items-start justify-between gap-2 p-4">
+                <div className="min-w-0">
+                  <Link
+                    href={`/admin/categories/${c.id}`}
+                    className="block truncate font-semibold hover:text-maroon-700"
+                  >
+                    {c.name}
+                  </Link>
+                  <p className="mt-0.5 text-xs text-ink-muted">
+                    {c._count.products} product{c._count.products === 1 ? "" : "s"} · sort{" "}
+                    {c.sortOrder}
+                  </p>
+                </div>
+
+                <form action={deleteCategory}>
+                  <input type="hidden" name="id" value={c.id} />
+                  <button
+                    type="submit"
+                    aria-label={`Delete ${c.name}`}
+                    title={
+                      c._count.products > 0
+                        ? "Has products — will be hidden instead of deleted"
+                        : "Delete"
+                    }
+                    className="grid size-8 shrink-0 place-items-center rounded-full text-ink-muted transition-colors hover:bg-maroon-50 hover:text-maroon-700"
+                  >
+                    <TrashIcon className="size-4" />
+                  </button>
+                </form>
+              </div>
+            </div>
+          ))}
         </div>
       )}
     </div>
