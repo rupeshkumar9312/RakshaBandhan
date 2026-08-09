@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/db";
 import { formatDate } from "@/lib/utils";
 import { UsersIcon, ChartIcon, GlobeIcon, DeviceIcon } from "@/components/icons";
+import { VisitorMap, type MapPoint } from "@/components/admin/visitor-map";
 
 export const metadata = { title: "Visitors" };
 
@@ -25,6 +26,7 @@ export default async function AdminVisitorsPage() {
     deviceGroups,
     browserGroups,
     recent,
+    locatedVisits,
   ] = await Promise.all([
     prisma.visit.count(),
     prisma.visit.findMany({ distinct: ["visitorId"], select: { visitorId: true } }),
@@ -51,7 +53,44 @@ export default async function AdminVisitorsPage() {
       take: 6,
     }),
     prisma.visit.findMany({ orderBy: { createdAt: "desc" }, take: 50 }),
+    prisma.visit.findMany({
+      where: { latitude: { not: null }, longitude: { not: null } },
+      select: {
+        latitude: true,
+        longitude: true,
+        city: true,
+        country: true,
+        locationSource: true,
+        gpsAccuracy: true,
+      },
+    }),
   ]);
+
+  // Group into map points so pageviews from the same spot become one sized
+  // marker instead of hundreds of overlapping dots. GPS points keep full
+  // precision (each is a distinct device-reported fix); IP points are rounded
+  // since city-level IP geolocation clusters naturally by area.
+  const pointsByLocation = new Map<string, MapPoint>();
+  for (const v of locatedVisits) {
+    if (v.latitude == null || v.longitude == null) continue;
+    const isGps = v.locationSource === "gps";
+    const key = isGps
+      ? `gps:${v.latitude},${v.longitude}`
+      : `ip:${v.latitude.toFixed(1)},${v.longitude.toFixed(1)}`;
+    const existing = pointsByLocation.get(key);
+    if (existing) existing.count += 1;
+    else
+      pointsByLocation.set(key, {
+        lat: v.latitude,
+        lng: v.longitude,
+        city: v.city,
+        country: v.country,
+        count: 1,
+        source: isGps ? "gps" : "ip",
+        accuracy: v.gpsAccuracy,
+      });
+  }
+  const mapPoints = Array.from(pointsByLocation.values());
 
   // Bucket the last 7 days for the trend chart.
   const days = Array.from({ length: 7 }, (_, i) => {
@@ -149,6 +188,27 @@ export default async function AdminVisitorsPage() {
           )}
         </section>
       </div>
+
+      {/* Map */}
+      <section className="card overflow-hidden p-5">
+        <h2 className="flex items-center gap-2 font-bold">
+          <GlobeIcon className="size-4.5 text-ink-muted" /> Visitor locations
+        </h2>
+        <p className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-ink-muted">
+          <span>Marker size reflects visit count.</span>
+          <span className="flex items-center gap-1.5">
+            <span className="inline-block size-2.5 rounded-full bg-gold-600" /> Device GPS
+            (visitor opted in)
+          </span>
+          <span className="flex items-center gap-1.5">
+            <span className="inline-block size-2.5 rounded-full bg-maroon-700" /> IP-based
+            (approximate)
+          </span>
+        </p>
+        <div className="mt-4 overflow-hidden rounded-xl">
+          <VisitorMap points={mapPoints} />
+        </div>
+      </section>
 
       <div className="grid gap-6 xl:grid-cols-3">
         {/* Top locations */}
