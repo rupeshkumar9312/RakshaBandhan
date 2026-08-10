@@ -33,6 +33,14 @@ model Category {
   createdAt   DateTime  @default(now())
 }
 
+model Society {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  sortOrder Int      @default(0)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+}
+
 model Product {
   id             String  @id @default(cuid())
   name           String

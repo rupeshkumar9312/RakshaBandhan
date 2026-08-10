@@ -72,7 +72,7 @@ function PlaceOrderButton({ total }: { total: number }) {
   );
 }
 
-export function CheckoutForm() {
+export function CheckoutForm({ societies }: { societies: { id: string; name: string }[] }) {
   const router = useRouter();
   const { lines, hydrated, subtotal, shipping, total, clear } = useCart();
   const [state, action] = useActionState<ActionState, FormData>(
@@ -325,24 +325,32 @@ export function CheckoutForm() {
                   <label htmlFor="f-addressLine1" className="label">
                     Society / building
                   </label>
-                  <select
-                    id="f-addressLine1"
-                    name="addressLine1"
-                    value={values.addressLine1}
-                    onChange={set("addressLine1")}
-                    aria-invalid={Boolean(errors.addressLine1)}
-                    aria-describedby={
-                      errors.addressLine1 ? "f-addressLine1-err" : undefined
-                    }
-                    className={cn("field", errors.addressLine1 && "field-error")}
-                  >
-                    <option value="" disabled>
-                      Select your society
-                    </option>
-                    <option value="The Golden Palms">The Golden Palms</option>
-                    <option value="Paras Seasons">Paras Seasons</option>
-                    <option value="Lotus Zing">Lotus Zing</option>
-                  </select>
+                  {societies.length > 0 ? (
+                    <select
+                      id="f-addressLine1"
+                      name="addressLine1"
+                      value={values.addressLine1}
+                      onChange={set("addressLine1")}
+                      aria-invalid={Boolean(errors.addressLine1)}
+                      aria-describedby={
+                        errors.addressLine1 ? "f-addressLine1-err" : undefined
+                      }
+                      className={cn("field", errors.addressLine1 && "field-error")}
+                    >
+                      <option value="" disabled>
+                        Select your society
+                      </option>
+                      {societies.map((s) => (
+                        <option key={s.id} value={s.name}>
+                          {s.name}
+                        </option>
+                      ))}
+                    </select>
+                  ) : (
+                    <select id="f-addressLine1" disabled className="field">
+                      <option>No societies available — contact support</option>
+                    </select>
+                  )}
                   {errors.addressLine1 && (
                     <p id="f-addressLine1-err" className="mt-1 text-xs text-maroon-600">
                       {errors.addressLine1}

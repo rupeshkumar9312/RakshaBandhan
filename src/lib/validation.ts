@@ -87,6 +87,12 @@ export const categorySchema = z.object({
   isActive: z.coerce.boolean().default(true),
 });
 
+export const societySchema = z.object({
+  name: z.string().trim().min(2, "Name is required").max(80),
+  sortOrder: z.coerce.number().int().min(0).max(9999).default(0),
+  isActive: z.coerce.boolean().default(true),
+});
+
 export const reviewSchema = z.object({
   productId: z.string().min(1),
   authorName: z.string().trim().min(2, "Please enter your name").max(60),
