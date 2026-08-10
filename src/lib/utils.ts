@@ -51,10 +51,12 @@ export function relativeDays(date: Date | string): string {
   return formatDate(d);
 }
 
-/** Society deliveries are same-day/next-day; keep the promise conservative. */
+/** Same-day if ordered before 9 PM, next-day otherwise. */
 export function estimatedDelivery(from = new Date()): string {
   const d = new Date(from);
-  d.setDate(d.getDate() + 2);
+  if (d.getHours() >= 21) {
+    d.setDate(d.getDate() + 1);
+  }
   return formatDate(d);
 }
 

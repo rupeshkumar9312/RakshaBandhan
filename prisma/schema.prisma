@@ -166,6 +166,12 @@ model Visit {
   country   String?
   region    String?
   city      String?
+  // GPS (device, opt-in via browser prompt) when granted; otherwise IP-derived
+  // (Vercel edge headers) — city-level accuracy, not exact GPS.
+  latitude       Float?
+  longitude      Float?
+  locationSource String? // "gps" | "ip"
+  gpsAccuracy    Float? // meters, only set when locationSource is "gps"
   // mobile | tablet | desktop
   deviceType String?
   browser    String?

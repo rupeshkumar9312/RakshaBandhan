@@ -25,6 +25,18 @@ export async function POST(req: NextRequest) {
     req.headers.get("x-real-ip") ??
     null;
 
+  // Client-reported device GPS (only present if the visitor granted the
+  // browser's location prompt) takes priority over IP-derived location.
+  const gps = body.gps as { lat?: unknown; lng?: unknown; accuracy?: unknown } | undefined;
+  const gpsLat = typeof gps?.lat === "number" && Math.abs(gps.lat) <= 90 ? gps.lat : null;
+  const gpsLng = typeof gps?.lng === "number" && Math.abs(gps.lng) <= 180 ? gps.lng : null;
+  const gpsAccuracy =
+    typeof gps?.accuracy === "number" && gps.accuracy >= 0 ? gps.accuracy : null;
+  const hasGps = gpsLat !== null && gpsLng !== null;
+
+  const latitude = hasGps ? gpsLat : parseFloat(req.headers.get("x-vercel-ip-latitude") ?? "");
+  const longitude = hasGps ? gpsLng : parseFloat(req.headers.get("x-vercel-ip-longitude") ?? "");
+
   const existingVisitorId = req.cookies.get(VISITOR_COOKIE)?.value;
   const visitorId = existingVisitorId ?? randomUUID();
 
@@ -37,6 +49,10 @@ export async function POST(req: NextRequest) {
       country,
       region,
       city: cityRaw ? decodeURIComponent(cityRaw) : null,
+      latitude: Number.isFinite(latitude) ? latitude : null,
+      longitude: Number.isFinite(longitude) ? longitude : null,
+      locationSource: hasGps ? "gps" : Number.isFinite(latitude) ? "ip" : null,
+      gpsAccuracy: hasGps ? gpsAccuracy : null,
       deviceType,
       browser,
       os,

@@ -2,7 +2,6 @@ import Link from "next/link";
 import { SITE } from "@/lib/site";
 import {
   PhoneIcon,
-  MailIcon,
   WhatsAppIcon,
   TruckIcon,
   CashIcon,
@@ -33,7 +32,6 @@ const COLUMNS = [
     title: "About",
     links: [
       { href: "/about", label: "Our story" },
-      { href: "/blog", label: "Journal" },
       { href: "/privacy", label: "Privacy policy" },
       { href: "/terms", label: "Terms of service" },
     ],
@@ -57,7 +55,7 @@ export function SiteFooter() {
             {
               Icon: TruckIcon,
               title: "Same-day society delivery",
-              body: "Order before 6 PM",
+              body: "Order before 9 PM",
             },
             {
               Icon: CashIcon,
@@ -104,12 +102,6 @@ export function SiteFooter() {
               className="flex items-center gap-2.5 text-cream-200 hover:text-gold-300"
             >
               <PhoneIcon className="size-4 text-gold-400" /> {SITE.phone}
-            </a>
-            <a
-              href={`mailto:${SITE.email}`}
-              className="flex items-center gap-2.5 text-cream-200 hover:text-gold-300"
-            >
-              <MailIcon className="size-4 text-gold-400" /> {SITE.email}
             </a>
             <a
               href={`https://wa.me/${tel.replace("+", "")}`}

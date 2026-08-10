@@ -58,7 +58,7 @@ export default function TermsPage() {
         <h2>Payment</h2>
         <p>
           Cash on Delivery only. Payment is due in full to the delivery partner when the order is
-          handed over. We do not accept cards, UPI or bank transfer at this time.
+          handed over..
         </p>
         <p>
           Repeatedly refusing delivery of confirmed Cash-on-Delivery orders may mean we decline

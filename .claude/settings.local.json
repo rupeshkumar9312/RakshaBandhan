@@ -23,7 +23,20 @@
       "Bash(curl -sf http://localhost:3000/api/health)",
       "Bash(curl -sf http://localhost:5173/)",
       "Bash(break)",
-      "Bash(curl -s http://localhost:3000/api/health)"
+      "Bash(curl -s http://localhost:3000/api/health)",
+      "Bash(cp env *)",
+      "PowerShell(npm --version)",
+      "PowerShell(node --version)",
+      "PowerShell(Get-ChildItem -Path \"C:\\\\Program Files\\\\nodejs\",\"C:\\\\Program Files \\(x86\\)\\\\nodejs\",\"$env:APPDATA\\\\npm\",\"$env:LOCALAPPDATA\\\\Programs\" -ErrorAction SilentlyContinue -Directory | Select-Object FullName; Write-Output \"---nvm---\"; Get-ChildItem -Path \"$env:APPDATA\\\\nvm\",\"$env:PROGRAMDATA\\\\nvm\" -ErrorAction SilentlyContinue | Select-Object FullName; Write-Output \"---where---\"; where.exe node 2>&1; where.exe npm 2>&1)",
+      "PowerShell(& \"C:\\\\Program Files\\\\nodejs\\\\node.exe\" --version)",
+      "PowerShell(& \"C:\\\\Program Files\\\\nodejs\\\\npm.cmd\" --version)",
+      "PowerShell($env:PATH = \"C:\\\\Program Files\\\\nodejs;\" + $env:PATH; & \"C:\\\\Program Files\\\\nodejs\\\\npm.cmd\" run dev)",
+      "PowerShell(Get-CimInstance Win32_Process -Filter \"Name='node.exe'\")",
+      "PowerShell(Stop-Process -Id 41464,34936,21460 -Force -ErrorAction SilentlyContinue)",
+      "Bash(exit 0)"
+    ],
+    "additionalDirectories": [
+      "C:\\Users\\ershw\\code\\RakshaBandhan"
     ]
   }
 }

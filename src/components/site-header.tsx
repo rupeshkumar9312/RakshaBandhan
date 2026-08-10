@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useCart } from "@/components/cart-provider";
-import { CartIcon, SearchIcon, MenuIcon, CloseIcon } from "@/components/icons";
+import { CartIcon, SearchIcon, MenuIcon, CloseIcon, LogoMark } from "@/components/icons";
 import { cn } from "@/lib/utils";
 import { SITE } from "@/lib/site";
 
@@ -66,8 +66,15 @@ export function SiteHeader({ categories }: { categories: NavCategory[] }) {
               <span>✦ Free delivery</span>
               <span>✦ Cash on Delivery available</span>
               <span>
-                ✦ Same-day delivery inside {SITE.society.split(",")[0]}
+                ✦ Same-day delivery inside {SITE.society.split(",")[0]}, Sector 168, Noida
               </span>
+              <span>
+                ✦ Same-day delivery inside Paras Seasons, Sector 168, Noida
+              </span>
+              <span>
+                ✦ Same-day delivery inside Lotus Zing, Sector 168, Noida
+              </span>
+
               <span className="text-gold-300">
                 ✦ Raksha Bandhan — {SITE.festivalDate}
               </span>
@@ -92,8 +99,8 @@ export function SiteHeader({ categories }: { categories: NavCategory[] }) {
           </button>
 
           <Link href="/" className="flex items-center gap-2.5 shrink-0">
-            <span className="grid size-9 place-items-center rounded-full bg-gradient-to-br from-gold-300 via-gold-500 to-gold-600 text-base font-bold text-maroon-950 shadow-[var(--shadow-gold)] sm:size-10">
-              ॐ
+            <span className="grid size-9 place-items-center rounded-full bg-gradient-to-br from-gold-300 via-gold-500 to-gold-600 text-maroon-950 shadow-[var(--shadow-gold)] sm:size-10">
+              <LogoMark className="size-5 sm:size-5.5" />
             </span>
             <span className="leading-none">
               <span className="block font-display text-lg font-bold tracking-tight text-cream-50 sm:text-xl">

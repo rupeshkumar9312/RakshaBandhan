@@ -27,7 +27,7 @@ const FAQS = [
       },
       {
         q: "Is there a minimum order?",
-        a: "No minimum. Delivery is ₹49, and free once your cart crosses ₹499.",
+        a: "No minimum. Delivery is free.",
       },
     ],
   },
@@ -36,7 +36,7 @@ const FAQS = [
     items: [
       {
         q: "How fast is delivery?",
-        a: `Inside ${SITE.society.split(",")[0]}, order before 6 PM and it reaches you the same evening. Elsewhere in Noida it is next-day. We call before we come.`,
+        a: `Order before 9 PM and it reaches you the same evening. We call before we come.`,
       },
       {
         q: "Do you deliver outside Noida?",
@@ -68,8 +68,8 @@ const FAQS = [
         a: "Rakhis are seasonal and hand-finished, so we do not accept change-of-mind returns once the parcel is opened. If it is unopened and still within two days of delivery, call us.",
       },
       {
-        q: "Do the hampers contain fresh sweets?",
-        a: "Yes. Sweets are boxed the morning of delivery from a local Noida sweet house. Eat within three days and keep them refrigerated in this weather.",
+        // q: "Do the hampers contain fresh sweets?",
+        // a: "Yes. Sweets are boxed the morning of delivery from a local Noida sweet house. Eat within three days and keep them refrigerated in this weather.",
       },
     ],
   },

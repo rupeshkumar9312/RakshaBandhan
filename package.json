@@ -11,14 +11,18 @@
     "db:generate": "node scripts/prisma.mjs generate",
     "db:push": "node scripts/prisma.mjs db push",
     "db:seed": "tsx prisma/seed.ts",
+    "db:clear": "node --env-file=.env node_modules/tsx/dist/cli.mjs prisma/clear.ts",
     "db:studio": "node scripts/prisma.mjs studio",
     "db:setup": "npm run db:push && npm run db:generate && npm run db:seed",
     "db:reset": "node scripts/prisma.mjs db push --force-reset && npm run db:seed"
   },
   "dependencies": {
     "@prisma/client": "^5.22.0",
+    "@vercel/analytics": "^2.0.1",
+    "@vercel/blob": "^2.7.0",
     "bcryptjs": "^2.4.3",
     "jose": "^5.9.6",
+    "leaflet": "^1.9.4",
     "next": "^15.1.6",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
@@ -28,6 +32,7 @@
   "devDependencies": {
     "@tailwindcss/postcss": "^4.0.0",
     "@types/bcryptjs": "^2.4.6",
+    "@types/leaflet": "^1.9.22",
     "@types/node": "^20.17.16",
     "@types/react": "^19.0.8",
     "@types/react-dom": "^19.0.3",

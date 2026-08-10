@@ -15,7 +15,7 @@ export const RAKHI_BRAND = {
 } as const;
 
 export const TRUST_POINTS = [
-  { title: "Same-day society delivery", body: "Order before 6 PM and it reaches your tower the same evening." },
+  { title: "Same-day society delivery", body: "Order before 8 PM and it reaches your tower the same evening." },
   { title: "Cash on Delivery", body: "Pay the delivery partner at your door. Cash/UPI only." },
   { title: "Hand-checked quality", body: "Every rakhi is inspected and boxed by hand before it leaves." },
   { title: "Easy replacement", body: "Anything damaged in transit is replaced free, no questions." },

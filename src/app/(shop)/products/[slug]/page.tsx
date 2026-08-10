@@ -202,7 +202,7 @@ export default async function ProductPage({ params }: { params: Params }) {
                 {
                   Icon: TruckIcon,
                   title: `Arrives by ${estimatedDelivery()}`,
-                  body: `Same evening inside ${SITE.society.split(",")[0]} if you order before 6 PM.`,
+                  body: `Same evening inside ${SITE.society.split(",")[0]} if you order before 9 PM.`,
                 },
                 {
                   Icon: CashIcon,

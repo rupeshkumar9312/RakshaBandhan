@@ -9,6 +9,47 @@ const base = {
   viewBox: "0 0 24 24",
 };
 
+/** Gift Buddy brand mark: a gift box holding two figures forming a heart. */
+export function LogoMark(p: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" {...p}>
+      <path
+        d="M9 5.2c-1.6-1.4-4-.8-3.9 1.1.1 1.8 2.1 2.3 3.9 1.4"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth={1.75}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M15 5.2c1.6-1.4 4-.8 3.9 1.1-.1 1.8-2.1 2.3-3.9 1.4"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth={1.75}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <circle cx="12" cy="6.3" r="1" fill="currentColor" />
+      <rect
+        x="4.5"
+        y="9.5"
+        width="15"
+        height="11"
+        rx="2"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth={1.75}
+      />
+      <circle cx="9.6" cy="13.6" r="1.5" fill="currentColor" />
+      <circle cx="14.4" cy="13.6" r="1.5" fill="currentColor" />
+      <path
+        d="M7.2 17.3c0-1.7 1.5-2.8 3-2.1.7.3 1.3.9 1.8 1.5.5-.6 1.1-1.2 1.8-1.5 1.5-.7 3 .4 3 2.1 0 1.9-2.5 3.1-4.8 4.2-2.3-1.1-4.8-2.3-4.8-4.2Z"
+        fill="currentColor"
+      />
+    </svg>
+  );
+}
+
 export function CartIcon(p: IconProps) {
   return (
     <svg {...base} {...p}>
@@ -226,6 +267,15 @@ export function GridIcon(p: IconProps) {
       <rect x="13.5" y="3.5" width="7" height="7" rx="1.5" />
       <rect x="3.5" y="13.5" width="7" height="7" rx="1.5" />
       <rect x="13.5" y="13.5" width="7" height="7" rx="1.5" />
+    </svg>
+  );
+}
+
+export function TagIcon(p: IconProps) {
+  return (
+    <svg {...base} {...p}>
+      <path d="M11.5 3.5H6a2.5 2.5 0 0 0-2.5 2.5v5.5a2 2 0 0 0 .586 1.414l8 8a2 2 0 0 0 2.828 0l6.586-6.586a2 2 0 0 0 0-2.828l-8-8A2 2 0 0 0 11.5 3.5Z" />
+      <circle cx="8" cy="8" r="1.4" />
     </svg>
   );
 }
