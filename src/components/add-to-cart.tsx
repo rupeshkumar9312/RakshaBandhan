@@ -20,17 +20,17 @@ export function AddToCart({
   image: string | null;
   inventory: number;
 }) {
-  const { add } = useCart();
+  const { add, lines } = useCart();
   const [qty, setQty] = useState(1);
-  const [added, setAdded] = useState(false);
+  // Reflects the real cart, not a timer — stays "Added" as long as it's
+  // actually in the cart, reverting only if it's removed elsewhere.
+  const added = lines.some((l) => l.productId === productId);
 
   const soldOut = inventory <= 0;
 
   function handleAdd() {
     if (soldOut) return;
     add({ productId, slug, name, price, image, maxQty: inventory }, qty);
-    setAdded(true);
-    setTimeout(() => setAdded(false), 2000);
   }
 
   if (soldOut) {

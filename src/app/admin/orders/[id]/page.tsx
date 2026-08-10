@@ -94,6 +94,11 @@ export default async function AdminOrderDetail({ params }: { params: Params }) {
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
+            {(order.status === "PENDING" || order.status === "PROCESSING") && (
+              <Link href={`/admin/orders/${order.id}/edit`} className="btn btn-outline btn-sm">
+                Edit order
+              </Link>
+            )}
             <OrderStatusSelect id={order.id} status={order.status as OrderStatus} />
             <PrintButton />
           </div>

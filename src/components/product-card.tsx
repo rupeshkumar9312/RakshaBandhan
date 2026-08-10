@@ -2,7 +2,6 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
 import { useCart } from "@/components/cart-provider";
 import { formatPaise, discountPercent } from "@/lib/money";
 import { parseTags, cn } from "@/lib/utils";
@@ -16,8 +15,11 @@ export function ProductCard({
   product: ProductCardData;
   priority?: boolean;
 }) {
-  const { add } = useCart();
-  const [justAdded, setJustAdded] = useState(false);
+  const { add, lines } = useCart();
+  // Reflects the real cart, not a timer — stays "Added" as long as it's
+  // actually in the cart, and correctly reverts if it's removed elsewhere
+  // (e.g. from the drawer), instead of snapping back after a few seconds.
+  const inCart = lines.some((l) => l.productId === product.id);
 
   const image = product.images[0]?.url ?? null;
   const off = discountPercent(product.price, product.compareAtPrice);
@@ -40,9 +42,10 @@ export function ProductCard({
         maxQty: product.inventory,
       },
       1,
+      // Don't pop the drawer open here — on mobile it's full-width and would
+      // instantly cover this button before the "Added" state is even visible.
+      { openDrawer: false },
     );
-    setJustAdded(true);
-    setTimeout(() => setJustAdded(false), 1600);
   }
 
   return (
@@ -97,13 +100,13 @@ export function ProductCard({
             "absolute inset-x-2.5 bottom-2.5 hidden items-center justify-center gap-2 rounded-full py-2.5 text-sm font-semibold",
             "translate-y-3 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100 sm:flex",
             "focus-visible:translate-y-0 focus-visible:opacity-100",
-            justAdded
+            inCart
               ? "bg-emerald-600 text-white"
               : "bg-cream-50/95 text-maroon-800 backdrop-blur hover:bg-white",
             soldOut && "hidden!",
           )}
         >
-          {justAdded ? (
+          {inCart ? (
             <>
               <CheckIcon className="size-4" /> Added
             </>
@@ -146,11 +149,11 @@ export function ProductCard({
             aria-label={`Add ${product.name} to cart`}
             className={cn(
               "grid size-9 shrink-0 place-items-center rounded-full transition-colors sm:hidden",
-              justAdded ? "bg-emerald-600 text-white" : "bg-maroon-700 text-cream-50",
+              inCart ? "bg-emerald-600 text-white" : "bg-maroon-700 text-cream-50",
               soldOut && "bg-cream-300 text-ink-muted",
             )}
           >
-            {justAdded ? <CheckIcon className="size-4" /> : <CartIcon className="size-4" />}
+            {inCart ? <CheckIcon className="size-4" /> : <CartIcon className="size-4" />}
           </button>
         </div>
 

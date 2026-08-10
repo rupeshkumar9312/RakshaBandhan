@@ -69,19 +69,24 @@ export default async function AdminOrdersPage({ searchParams }: { searchParams: 
           </p>
         </div>
 
-        <form action="/admin/orders" className="flex gap-2">
-          {status && <input type="hidden" name="status" value={status} />}
-          <input
-            name="q"
-            defaultValue={q ?? ""}
-            placeholder="Order no, name or phone"
-            aria-label="Search orders"
-            className="field py-2.5 text-sm sm:w-64"
-          />
-          <button type="submit" className="btn btn-primary btn-sm">
-            Search
-          </button>
-        </form>
+        <div className="flex flex-wrap gap-2">
+          <form action="/admin/orders" className="flex gap-2">
+            {status && <input type="hidden" name="status" value={status} />}
+            <input
+              name="q"
+              defaultValue={q ?? ""}
+              placeholder="Order no, name or phone"
+              aria-label="Search orders"
+              className="field py-2.5 text-sm sm:w-64"
+            />
+            <button type="submit" className="btn btn-outline btn-sm">
+              Search
+            </button>
+          </form>
+          <Link href="/admin/orders/new" className="btn btn-primary btn-sm">
+            New order
+          </Link>
+        </div>
       </header>
 
       {/* Status tabs */}

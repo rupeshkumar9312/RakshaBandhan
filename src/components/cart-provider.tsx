@@ -94,7 +94,11 @@ type CartContextValue = {
   isOpen: boolean;
   openCart: () => void;
   closeCart: () => void;
-  add: (line: Omit<CartLine, "quantity">, quantity?: number) => void;
+  add: (
+    line: Omit<CartLine, "quantity">,
+    quantity?: number,
+    opts?: { openDrawer?: boolean },
+  ) => void;
   setQty: (productId: string, quantity: number) => void;
   remove: (productId: string) => void;
   clear: () => void;
@@ -138,10 +142,13 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   // These are dependencies of effects in consumers (the checkout redirect, for
   // one), so their identities must stay stable across cart updates — otherwise
   // an effect that calls clear() re-fires on its own result, forever.
-  const add = useCallback((line: Omit<CartLine, "quantity">, quantity = 1) => {
-    dispatch({ type: "add", line, quantity });
-    setIsOpen(true);
-  }, []);
+  const add = useCallback(
+    (line: Omit<CartLine, "quantity">, quantity = 1, opts?: { openDrawer?: boolean }) => {
+      dispatch({ type: "add", line, quantity });
+      if (opts?.openDrawer ?? true) setIsOpen(true);
+    },
+    [],
+  );
   const setQty = useCallback(
     (productId: string, quantity: number) => dispatch({ type: "setQty", productId, quantity }),
     [],
