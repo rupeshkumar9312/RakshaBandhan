@@ -113,7 +113,6 @@ export const adminOrderSchema = z.object({
     .pipe(z.string().email("Enter a valid email").optional()),
   addressLine1: z.string().trim().min(4, "Please enter the address").max(160),
   addressLine2: optionalText(160),
-  tower: optionalText(60),
   flat: optionalText(60),
   landmark: optionalText(120),
   city: z.string().trim().min(2, "Enter the city").max(60).default("Noida"),

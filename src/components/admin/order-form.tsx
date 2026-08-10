@@ -34,9 +34,8 @@ export type OrderFormValues = {
   contactPhone: string;
   contactEmail: string;
   addressLine1: string;
-  addressLine2: string;
-  tower: string;
   flat: string;
+  addressLine2: string;
   landmark: string;
   city: string;
   state: string;
@@ -51,9 +50,8 @@ const BLANK: OrderFormValues = {
   contactPhone: "",
   contactEmail: "",
   addressLine1: "",
-  addressLine2: "",
-  tower: "",
   flat: "",
+  addressLine2: "",
   landmark: "",
   city: "Noida",
   state: "Uttar Pradesh",
@@ -314,7 +312,7 @@ export function OrderForm({ initial }: { initial?: OrderFormValues }) {
             </p>
 
             <Field
-              label="Address / society"
+              label="Society / Area / Street"
               name="addressLine1"
               value={fields.addressLine1}
               onChange={set("addressLine1")}
@@ -323,28 +321,18 @@ export function OrderForm({ initial }: { initial?: OrderFormValues }) {
               required
             />
             <Field
-              label="Address line 2"
+              label="House No. / Flat No."
+              optional
+              name="flat"
+              value={fields.flat}
+              onChange={set("flat")}
+            />
+            <Field
+              label="Complete Address"
               optional
               name="addressLine2"
               value={fields.addressLine2}
               onChange={set("addressLine2")}
-            />
-            <div className="grid grid-cols-2 gap-4">
-              <Field
-                label="Tower"
-                optional
-                name="tower"
-                value={fields.tower}
-                onChange={set("tower")}
-              />
-              <Field label="Flat no." optional name="flat" value={fields.flat} onChange={set("flat")} />
-            </div>
-            <Field
-              label="Landmark"
-              optional
-              name="landmark"
-              value={fields.landmark}
-              onChange={set("landmark")}
             />
             <div className="grid grid-cols-2 gap-4">
               <Field
@@ -355,13 +343,20 @@ export function OrderForm({ initial }: { initial?: OrderFormValues }) {
                 error={errors.city}
               />
               <Field
-                label="PIN code"
+                label="Pincode"
                 name="pincode"
                 value={fields.pincode}
                 onChange={set("pincode")}
                 error={errors.pincode}
               />
             </div>
+            <Field
+              label="Landmark"
+              optional
+              name="landmark"
+              value={fields.landmark}
+              onChange={set("landmark")}
+            />
             <Field
               label="State"
               name="state"

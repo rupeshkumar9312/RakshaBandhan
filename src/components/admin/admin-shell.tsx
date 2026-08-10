@@ -14,6 +14,7 @@ import {
   GlobeIcon,
   TagIcon,
   BuildingIcon,
+  TruckIcon,
   LogoutIcon,
   MenuIcon,
   CloseIcon,
@@ -27,6 +28,7 @@ const NAV = [
   { href: "/admin/products", label: "Products", Icon: GridIcon },
   { href: "/admin/categories", label: "Categories", Icon: TagIcon },
   { href: "/admin/societies", label: "Societies", Icon: BuildingIcon },
+  { href: "/admin/delivery-requests", label: "Delivery requests", Icon: TruckIcon },
   { href: "/admin/customers", label: "Customers", Icon: UsersIcon },
   { href: "/admin/visitors", label: "Visitors", Icon: GlobeIcon },
 ];
