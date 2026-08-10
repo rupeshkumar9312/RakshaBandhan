@@ -7,7 +7,7 @@ import { shippingFor } from "@/lib/money";
 import { buildOrderNumber } from "@/lib/utils";
 
 export type ActionState =
-  | { ok: true; orderNumber?: string; publicToken?: string; message?: string }
+  | { ok: true; orderNumber?: string; publicToken?: string; message?: string; unserviceable?: boolean }
   | { ok: false; errors: Record<string, string> }
   | null;
 
@@ -53,7 +53,25 @@ export async function placeOrder(_prev: ActionState, formData: FormData): Promis
     select: { id: true },
   });
   if (!society) {
-    return { ok: false, errors: { addressLine1: "Please select a valid society from the list." } };
+    // Not a real order — capture it as a demand signal so expansion planning
+    // can see where people are asking to be delivered to.
+    await prisma.demandLead.create({
+      data: {
+        contactName: input.contactName,
+        contactPhone: input.contactPhone,
+        contactEmail: input.contactEmail ?? null,
+        requestedAddress: input.addressLine1,
+        tower: input.tower || null,
+        flat: input.flat || null,
+        landmark: input.landmark || null,
+        city: input.city,
+        state: input.state,
+        pincode: input.pincode,
+        customerNote: input.customerNote || null,
+        itemsSnapshot: JSON.stringify(input.items),
+      },
+    });
+    return { ok: true, unserviceable: true };
   }
 
   try {
