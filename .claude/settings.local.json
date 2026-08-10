@@ -33,7 +33,12 @@
       "PowerShell($env:PATH = \"C:\\\\Program Files\\\\nodejs;\" + $env:PATH; & \"C:\\\\Program Files\\\\nodejs\\\\npm.cmd\" run dev)",
       "PowerShell(Get-CimInstance Win32_Process -Filter \"Name='node.exe'\")",
       "PowerShell(Stop-Process -Id 41464,34936,21460 -Force -ErrorAction SilentlyContinue)",
-      "Bash(exit 0)"
+      "Bash(exit 0)",
+      "Bash(npx tsc *)",
+      "Bash(curl -s -o /dev/null -w \"Orders list: %{http_code}\\\\n\" http://localhost:3000/admin/orders)",
+      "Bash(curl -s -o /dev/null -w \"New order \\(unauth, expect redirect\\): %{http_code}\\\\n\" http://localhost:3000/admin/orders/new)",
+      "Bash(tail -60 /tmp/rb-dev.log | grep -iE \"error|fail\" | tail -20; echo \"---last lines---\"; tail -20 /tmp/rb-dev.log)",
+      "Read(//private/tmp/**)"
     ],
     "additionalDirectories": [
       "C:\\Users\\ershw\\code\\RakshaBandhan"

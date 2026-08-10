@@ -15,10 +15,18 @@ import {
   productSchema,
   categorySchema,
   societySchema,
+  adminOrderSchema,
   fieldErrors,
 } from "@/lib/validation";
-import { rupeesToPaise } from "@/lib/money";
-import { slugify, serializeTags, ORDER_STATUSES, type OrderStatus } from "@/lib/utils";
+import { rupeesToPaise, shippingFor } from "@/lib/money";
+import {
+  slugify,
+  serializeTags,
+  buildOrderNumber,
+  formatDate,
+  ORDER_STATUSES,
+  type OrderStatus,
+} from "@/lib/utils";
 
 export type AdminActionState =
   | { ok: true; message?: string }
@@ -273,6 +281,325 @@ export async function saveOrderNote(formData: FormData) {
 
   await prisma.order.update({ where: { id }, data: { adminNote: adminNote || null } });
   revalidatePath(`/admin/orders/${id}`);
+}
+
+const EDITABLE_STATUSES: OrderStatus[] = ["PENDING", "PROCESSING"];
+
+function readAdminOrderForm(formData: FormData) {
+  return {
+    contactName: formData.get("contactName"),
+    contactPhone: formData.get("contactPhone"),
+    contactEmail: formData.get("contactEmail"),
+    addressLine1: formData.get("addressLine1"),
+    addressLine2: formData.get("addressLine2"),
+    tower: formData.get("tower"),
+    flat: formData.get("flat"),
+    landmark: formData.get("landmark"),
+    city: formData.get("city") || "Noida",
+    state: formData.get("state") || "Uttar Pradesh",
+    pincode: formData.get("pincode"),
+    customerNote: formData.get("customerNote"),
+    adminNote: formData.get("adminNote"),
+  };
+}
+
+function readOrderItemsField(formData: FormData): unknown {
+  try {
+    return JSON.parse(String(formData.get("items") ?? "[]"));
+  } catch {
+    return null;
+  }
+}
+
+/** Admin equivalent of placeOrder — same stock-check/transaction shape, but
+ * free-text address (no Society whitelist) and gated behind requireSession(). */
+export async function createOrder(
+  _prev: AdminActionState,
+  formData: FormData,
+): Promise<AdminActionState> {
+  const session = await requireSession();
+
+  const rawItems = readOrderItemsField(formData);
+  if (rawItems === null) {
+    return { ok: false, errors: { form: "Items could not be read. Please try again." } };
+  }
+
+  const parsed = adminOrderSchema.safeParse({ ...readAdminOrderForm(formData), items: rawItems });
+  if (!parsed.success) return { ok: false, errors: fieldErrors(parsed.error) };
+  const input = parsed.data;
+
+  let created: { id: string };
+  try {
+    created = await prisma.$transaction(async (tx) => {
+      const products = await tx.product.findMany({
+        where: { id: { in: input.items.map((i) => i.productId) }, isActive: true },
+        include: { images: { orderBy: { sortOrder: "asc" }, take: 1 } },
+      });
+      const byId = new Map(products.map((p) => [p.id, p]));
+
+      const lines = input.items.map((item) => {
+        const product = byId.get(item.productId);
+        if (!product) {
+          throw new Error("UNAVAILABLE:One of the selected products is no longer available.");
+        }
+        if (product.inventory < item.quantity) {
+          throw new Error(`STOCK:${product.name} only has ${product.inventory} in stock.`);
+        }
+        return {
+          productId: product.id,
+          nameSnapshot: product.name,
+          imageSnapshot: product.images[0]?.url ?? null,
+          unitPrice: product.price,
+          quantity: item.quantity,
+          lineTotal: product.price * item.quantity,
+        };
+      });
+
+      const subtotal = lines.reduce((s, l) => s + l.lineTotal, 0);
+      const shippingFee = shippingFor(subtotal);
+
+      const customer = await tx.customer.upsert({
+        where: { phone: input.contactPhone },
+        update: {
+          name: input.contactName,
+          ...(input.contactEmail ? { email: input.contactEmail } : {}),
+        },
+        create: {
+          name: input.contactName,
+          phone: input.contactPhone,
+          email: input.contactEmail ?? null,
+        },
+      });
+
+      const sequence = (await tx.order.count()) + 1;
+      const attribution = `Order created by ${session.name} on ${formatDate(new Date(), true)}`;
+      const adminNote = input.adminNote ? `${input.adminNote}\n${attribution}` : attribution;
+
+      const order = await tx.order.create({
+        data: {
+          orderNumber: buildOrderNumber(sequence),
+          customerId: customer.id,
+          contactName: input.contactName,
+          contactPhone: input.contactPhone,
+          contactEmail: input.contactEmail ?? null,
+          addressLine1: input.addressLine1,
+          addressLine2: input.addressLine2 || null,
+          tower: input.tower || null,
+          flat: input.flat || null,
+          landmark: input.landmark || null,
+          city: input.city,
+          state: input.state,
+          pincode: input.pincode,
+          subtotal,
+          shippingFee,
+          total: subtotal + shippingFee,
+          paymentMethod: "COD",
+          customerNote: input.customerNote || null,
+          adminNote,
+          items: { create: lines },
+        },
+      });
+
+      for (const line of lines) {
+        await tx.product.update({
+          where: { id: line.productId },
+          data: { inventory: { decrement: line.quantity } },
+        });
+      }
+
+      return order;
+    });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "";
+    if (message.startsWith("STOCK:") || message.startsWith("UNAVAILABLE:")) {
+      return { ok: false, errors: { form: message.split(":").slice(1).join(":") } };
+    }
+    console.error("createOrder failed:", error);
+    return {
+      ok: false,
+      errors: { form: "Something went wrong creating the order. Please try again." },
+    };
+  }
+
+  // Outside the try/catch — redirect() throws internally, and a catch-all
+  // above would otherwise swallow that as a false "something went wrong".
+  revalidatePath("/admin/orders");
+  revalidatePath("/admin");
+  redirect(`/admin/orders/${created.id}?created=1`);
+}
+
+/** Edits an existing order's items/address/contact. Only orders that are
+ * still PENDING or PROCESSING are editable — the check is re-run inside the
+ * transaction so a status change in another tab can't be edited around. */
+export async function updateOrderItems(
+  _prev: AdminActionState,
+  formData: FormData,
+): Promise<AdminActionState> {
+  const session = await requireSession();
+
+  const id = String(formData.get("id") ?? "");
+  if (!id) return { ok: false, errors: { form: "Missing order id." } };
+
+  const rawItems = readOrderItemsField(formData);
+  if (rawItems === null) {
+    return { ok: false, errors: { form: "Items could not be read. Please try again." } };
+  }
+
+  const parsed = adminOrderSchema.safeParse({ ...readAdminOrderForm(formData), items: rawItems });
+  if (!parsed.success) return { ok: false, errors: fieldErrors(parsed.error) };
+  const input = parsed.data;
+
+  try {
+    await prisma.$transaction(async (tx) => {
+      const existing = await tx.order.findUnique({ where: { id }, include: { items: true } });
+      if (!existing) throw new Error("UNAVAILABLE:Order not found.");
+      if (!EDITABLE_STATUSES.includes(existing.status as OrderStatus)) {
+        throw new Error("LOCKED:This order can no longer be edited because its status has moved on.");
+      }
+
+      const oldQtyByProduct = new Map(existing.items.map((i) => [i.productId, i.quantity]));
+      const newQtyByProduct = new Map<string, number>();
+      for (const item of input.items) {
+        newQtyByProduct.set(
+          item.productId,
+          (newQtyByProduct.get(item.productId) ?? 0) + item.quantity,
+        );
+      }
+
+      const productIds = new Set([...oldQtyByProduct.keys(), ...newQtyByProduct.keys()]);
+      const products = await tx.product.findMany({
+        where: { id: { in: [...productIds] } },
+        include: { images: { orderBy: { sortOrder: "asc" }, take: 1 } },
+      });
+      const byId = new Map(products.map((p) => [p.id, p]));
+
+      // Validate before writing anything — every referenced product must
+      // still exist, and any net-increase in reserved stock must fit.
+      for (const pid of productIds) {
+        const product = byId.get(pid);
+        const oldQty = oldQtyByProduct.get(pid) ?? 0;
+        const newQty = newQtyByProduct.get(pid) ?? 0;
+        const delta = newQty - oldQty;
+        if (newQty > 0 && !product) {
+          throw new Error("UNAVAILABLE:One of the selected products is no longer available.");
+        }
+        if (delta > 0 && product!.inventory < delta) {
+          throw new Error(`STOCK:${product!.name} only has ${product!.inventory} more in stock.`);
+        }
+      }
+
+      for (const pid of productIds) {
+        const oldQty = oldQtyByProduct.get(pid) ?? 0;
+        const newQty = newQtyByProduct.get(pid) ?? 0;
+        const delta = newQty - oldQty;
+        if (delta === 0) continue;
+        await tx.product.update({
+          where: { id: pid },
+          data: { inventory: delta > 0 ? { decrement: delta } : { increment: -delta } },
+        });
+      }
+
+      const lines = [...newQtyByProduct.entries()].map(([pid, qty]) => {
+        const product = byId.get(pid)!;
+        return {
+          productId: pid,
+          nameSnapshot: product.name,
+          imageSnapshot: product.images[0]?.url ?? null,
+          unitPrice: product.price,
+          quantity: qty,
+          lineTotal: product.price * qty,
+        };
+      });
+      const subtotal = lines.reduce((s, l) => s + l.lineTotal, 0);
+      const shippingFee = shippingFor(subtotal);
+
+      const attribution = `Items edited by ${session.name} on ${formatDate(new Date(), true)}`;
+      const adminNote = existing.adminNote ? `${existing.adminNote}\n${attribution}` : attribution;
+
+      await tx.orderItem.deleteMany({ where: { orderId: id } });
+      await tx.order.update({
+        where: { id },
+        data: {
+          contactName: input.contactName,
+          contactPhone: input.contactPhone,
+          contactEmail: input.contactEmail ?? null,
+          addressLine1: input.addressLine1,
+          addressLine2: input.addressLine2 || null,
+          tower: input.tower || null,
+          flat: input.flat || null,
+          landmark: input.landmark || null,
+          city: input.city,
+          state: input.state,
+          pincode: input.pincode,
+          subtotal,
+          shippingFee,
+          total: subtotal + shippingFee,
+          customerNote: input.customerNote || null,
+          adminNote,
+          items: { create: lines },
+        },
+      });
+    });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "";
+    if (
+      message.startsWith("STOCK:") ||
+      message.startsWith("UNAVAILABLE:") ||
+      message.startsWith("LOCKED:")
+    ) {
+      return { ok: false, errors: { form: message.split(":").slice(1).join(":") } };
+    }
+    console.error("updateOrderItems failed:", error);
+    return {
+      ok: false,
+      errors: { form: "Something went wrong saving the order. Please try again." },
+    };
+  }
+
+  revalidatePath("/admin/orders");
+  revalidatePath(`/admin/orders/${id}`);
+  revalidatePath("/admin");
+  return { ok: true, message: "Order updated." };
+}
+
+export type AdminProductSearchResult = {
+  id: string;
+  name: string;
+  price: number;
+  inventory: number;
+  isActive: boolean;
+  imageUrl: string | null;
+};
+
+/** Powers the product picker in the admin order form. Not filtered by
+ * isActive — editing an order may need to re-add a temporarily hidden
+ * product; the UI flags inactive results instead of hiding them outright. */
+export async function searchProductsForOrder(query: string): Promise<AdminProductSearchResult[]> {
+  await requireSession();
+  const q = query.trim();
+  if (q.length < 2) return [];
+
+  const products = await prisma.product.findMany({
+    where: { OR: [{ name: { contains: q } }, { sku: { contains: q } }] },
+    select: {
+      id: true,
+      name: true,
+      price: true,
+      inventory: true,
+      isActive: true,
+      images: { select: { url: true }, orderBy: { sortOrder: "asc" }, take: 1 },
+    },
+    take: 10,
+  });
+
+  return products.map((p) => ({
+    id: p.id,
+    name: p.name,
+    price: p.price,
+    inventory: p.inventory,
+    isActive: p.isActive,
+    imageUrl: p.images[0]?.url ?? null,
+  }));
 }
 
 /* ───────────────────────── Categories ───────────────────────── */

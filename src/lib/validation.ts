@@ -93,6 +93,37 @@ export const societySchema = z.object({
   isActive: z.coerce.boolean().default(true),
 });
 
+export const adminOrderItemSchema = z.object({
+  productId: z.string().min(1),
+  quantity: z.coerce.number().int().min(1).max(999),
+});
+
+/**
+ * Used for admin-created and admin-edited orders. Deliberately separate from
+ * checkoutSchema (rather than a runtime flag on it) so the customer checkout
+ * path stays structurally incapable of skipping its Society whitelist check —
+ * addressLine1 here is free text, not validated against the Society list.
+ */
+export const adminOrderSchema = z.object({
+  contactName: z.string().trim().min(2, "Name is too short").max(80),
+  contactPhone: phoneSchema,
+  contactEmail: z
+    .union([z.string(), z.null(), z.undefined()])
+    .transform((v) => (v == null ? undefined : v.trim() || undefined))
+    .pipe(z.string().email("Enter a valid email").optional()),
+  addressLine1: z.string().trim().min(4, "Please enter the address").max(160),
+  addressLine2: optionalText(160),
+  tower: optionalText(60),
+  flat: optionalText(60),
+  landmark: optionalText(120),
+  city: z.string().trim().min(2, "Enter the city").max(60).default("Noida"),
+  state: z.string().trim().min(2).max(60).default("Uttar Pradesh"),
+  pincode: pincodeSchema,
+  customerNote: optionalText(500),
+  adminNote: optionalText(1000),
+  items: z.array(adminOrderItemSchema).min(1, "Add at least one item"),
+});
+
 export const reviewSchema = z.object({
   productId: z.string().min(1),
   authorName: z.string().trim().min(2, "Please enter your name").max(60),
