@@ -17,6 +17,30 @@ import { ChevronLeft, PhoneIcon, WhatsAppIcon, MailIcon } from "@/components/ico
 
 type Params = Promise<{ id: string }>;
 
+/** What we WhatsApp the customer for each status — kept in sync with OrderStatus. */
+function buildStatusMessage(
+  order: { contactName: string; orderNumber: string; total: number; status: string },
+  trackingUrl: string,
+): string {
+  const hello = `Hello ${order.contactName}, this is ${SITE.name}.`;
+  const amount = formatPaise(order.total);
+
+  switch (order.status as OrderStatus) {
+    case "PENDING":
+      return `${hello} We've received your order ${order.orderNumber} (${amount}, Cash on Delivery) and it's being prepared. Track it here: ${trackingUrl}`;
+    case "PROCESSING":
+      return `${hello} Your order ${order.orderNumber} is being packed and will be shipped soon. Track it here: ${trackingUrl}`;
+    case "SHIPPED":
+      return `${hello} Your order ${order.orderNumber} (${amount}, Cash on Delivery) is out for delivery today! Track it here: ${trackingUrl}`;
+    case "DELIVERED":
+      return `${hello} Your order ${order.orderNumber} has been delivered. Thank you for shopping with us! 🙏`;
+    case "CANCELLED":
+      return `${hello} Your order ${order.orderNumber} has been cancelled. If this wasn't expected, please reply here or give us a call. Details: ${trackingUrl}`;
+    default:
+      return `${hello} Your order ${order.orderNumber} status: ${STATUS_LABELS[order.status as OrderStatus] ?? order.status}. Track it here: ${trackingUrl}`;
+  }
+}
+
 export async function generateMetadata({ params }: { params: Params }) {
   const { id } = await params;
   const order = await prisma.order.findUnique({
@@ -37,9 +61,8 @@ export default async function AdminOrderDetail({ params }: { params: Params }) {
   if (!order) notFound();
 
   const tel = order.contactPhone;
-  const waText = encodeURIComponent(
-    `Hello ${order.contactName}, this is ${SITE.name}. Your order ${order.orderNumber} (${formatPaise(order.total)}, Cash on Delivery) is on its way.`,
-  );
+  const trackingUrl = `${SITE.url}/order/${order.publicToken}`;
+  const waText = encodeURIComponent(buildStatusMessage(order, trackingUrl));
 
   const timeline = [
     { label: "Placed", at: order.placedAt },

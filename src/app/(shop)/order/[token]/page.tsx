@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/db";
 import { formatPaise } from "@/lib/money";
-import { estimatedDelivery, formatDate, STATUS_LABELS, type OrderStatus } from "@/lib/utils";
+import { estimatedDelivery } from "@/lib/utils";
 import { SITE } from "@/lib/site";
 import { CheckIcon, TruckIcon, CashIcon, PhoneIcon, WhatsAppIcon } from "@/components/icons";
+import { OrderTracker } from "@/components/order-tracker";
 
 export const metadata: Metadata = {
   title: "Order confirmed",
@@ -26,8 +26,9 @@ export default async function OrderConfirmationPage({ params }: { params: Params
   if (!order) notFound();
 
   const tel = SITE.phone.replace(/\s/g, "");
+  const trackingUrl = `${SITE.url}/order/${order.publicToken}`;
   const shareText = encodeURIComponent(
-    `I just ordered rakhis from ${SITE.name} — same-day delivery inside the society and cash on delivery. ${SITE.url}`,
+    `Thank you for your order from ${SITE.name}! 🙏\n\nOrder ${order.orderNumber} has been placed successfully.\nTrack your order here: ${trackingUrl}`,
   );
 
   return (
@@ -45,25 +46,11 @@ export default async function OrderConfirmationPage({ params }: { params: Params
             Your order is confirmed. We&apos;ll call{" "}
             <strong className="text-ink">+91 {order.contactPhone}</strong> before we deliver.
           </p>
+        </div>
 
-          <div className="mt-6 inline-flex flex-wrap items-center justify-center gap-x-6 gap-y-2 rounded-xl2 border border-cream-300 bg-white px-6 py-4">
-            <div>
-              <p className="text-[0.6875rem] tracking-wider text-ink-muted uppercase">Order number</p>
-              <p className="font-display text-lg font-bold text-maroon-800">{order.orderNumber}</p>
-            </div>
-            <div className="hidden h-9 w-px bg-cream-300 sm:block" />
-            <div>
-              <p className="text-[0.6875rem] tracking-wider text-ink-muted uppercase">Placed on</p>
-              <p className="text-sm font-semibold">{formatDate(order.placedAt, true)}</p>
-            </div>
-            <div className="hidden h-9 w-px bg-cream-300 sm:block" />
-            <div>
-              <p className="text-[0.6875rem] tracking-wider text-ink-muted uppercase">Status</p>
-              <p className="text-sm font-semibold">
-                {STATUS_LABELS[order.status as OrderStatus] ?? order.status}
-              </p>
-            </div>
-          </div>
+        {/* Status + items */}
+        <div className="mt-8">
+          <OrderTracker order={order} />
         </div>
 
         {/* Delivery + payment */}
@@ -101,60 +88,6 @@ export default async function OrderConfirmationPage({ params }: { params: Params
           </div>
         </div>
 
-        {/* Items */}
-        <div className="card mt-4 p-6">
-          <h2 className="text-lg font-bold">Order summary</h2>
-
-          <ul className="mt-4 divide-y divide-cream-300">
-            {order.items.map((item) => (
-              <li key={item.id} className="flex gap-3.5 py-3.5">
-                <div className="relative size-16 shrink-0 overflow-hidden rounded-lg bg-cream-200">
-                  {item.imageSnapshot && (
-                    <Image
-                      src={item.imageSnapshot}
-                      alt=""
-                      fill
-                      sizes="64px"
-                      className="object-cover"
-                    />
-                  )}
-                </div>
-                <div className="min-w-0 flex-1">
-                  <p className="text-sm font-medium leading-snug">{item.nameSnapshot}</p>
-                  <p className="mt-0.5 text-xs text-ink-muted">
-                    {item.quantity} × {formatPaise(item.unitPrice)}
-                  </p>
-                </div>
-                <span className="text-sm font-semibold tabular-nums">
-                  {formatPaise(item.lineTotal)}
-                </span>
-              </li>
-            ))}
-          </ul>
-
-          <dl className="mt-4 space-y-2 border-t border-cream-300 pt-4 text-sm">
-            <div className="flex justify-between">
-              <dt className="text-ink-soft">Subtotal</dt>
-              <dd className="font-semibold tabular-nums">{formatPaise(order.subtotal)}</dd>
-            </div>
-            <div className="flex justify-between">
-              <dt className="text-ink-soft">Delivery</dt>
-              <dd className="font-semibold tabular-nums">
-                {order.shippingFee === 0 ? (
-                  <span className="text-emerald-700">Free</span>
-                ) : (
-                  formatPaise(order.shippingFee)
-                )}
-              </dd>
-            </div>
-            <div className="rule-gold my-2" />
-            <div className="flex justify-between text-lg">
-              <dt className="font-bold">Total payable</dt>
-              <dd className="font-bold tabular-nums text-maroon-800">{formatPaise(order.total)}</dd>
-            </div>
-          </dl>
-        </div>
-
         {/* Next steps */}
         <div className="mt-8 flex flex-wrap justify-center gap-3">
           <Link href="/products" className="btn btn-primary">
@@ -167,7 +100,7 @@ export default async function OrderConfirmationPage({ params }: { params: Params
             className="btn btn-outline"
           >
             <WhatsAppIcon className="size-4" />
-            Tell a neighbour
+            Share on WhatsApp
           </a>
           <a href={`tel:${tel}`} className="btn btn-ghost">
             <PhoneIcon className="size-4" />
