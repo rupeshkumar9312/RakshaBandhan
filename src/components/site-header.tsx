@@ -212,6 +212,7 @@ export function SiteHeader({ categories }: { categories: NavCategory[] }) {
           <p className="eyebrow px-3 pb-2 pt-3 text-gold-400">Shop</p>
           <Link
             href="/products"
+            onClick={() => setMenuOpen(false)}
             className="block rounded-xl px-3 py-3 font-semibold text-cream-50 transition-colors hover:bg-white/8"
           >
             All rakhis
@@ -220,6 +221,7 @@ export function SiteHeader({ categories }: { categories: NavCategory[] }) {
             <Link
               key={c.slug}
               href={`/products?category=${c.slug}`}
+              onClick={() => setMenuOpen(false)}
               className="block rounded-xl px-3 py-3 text-cream-200/85 transition-colors hover:bg-white/8"
             >
               {c.name}
@@ -236,6 +238,7 @@ export function SiteHeader({ categories }: { categories: NavCategory[] }) {
             <Link
               key={l.href}
               href={l.href}
+              onClick={() => setMenuOpen(false)}
               className="block rounded-xl px-3 py-3 text-cream-200/85 transition-colors hover:bg-white/8"
             >
               {l.label}
