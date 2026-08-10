@@ -280,6 +280,17 @@ export function TagIcon(p: IconProps) {
   );
 }
 
+export function BuildingIcon(p: IconProps) {
+  return (
+    <svg {...base} {...p}>
+      <rect x="4" y="3" width="12" height="18" rx="1" />
+      <path d="M16 21h4v-9l-4-3" />
+      <path d="M7.5 7h1M11.5 7h1M7.5 11h1M11.5 11h1M7.5 15h1M11.5 15h1" />
+      <path d="M9 21v-4h2v4" />
+    </svg>
+  );
+}
+
 export function GlobeIcon(p: IconProps) {
   return (
     <svg {...base} {...p}>

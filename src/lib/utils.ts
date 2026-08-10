@@ -25,16 +25,37 @@ export function serializeTags(tags: string[]): string {
   return Array.from(new Set(tags.map((t) => t.trim()).filter(Boolean))).join(",");
 }
 
+// The store operates in Noida, but Vercel's serverless functions run in UTC —
+// without pinning a zone, every server-rendered date/hour silently shifts by
+// 5h30m (and sometimes a whole calendar day) versus what the customer sees.
+const IST_TIME_ZONE = "Asia/Kolkata";
+
+/** Year/month/day/hour as seen on an India clock, regardless of server TZ. */
+function istParts(date: Date) {
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone: IST_TIME_ZONE,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    hour12: false,
+  }).formatToParts(date);
+  const get = (type: string) => Number(parts.find((p) => p.type === type)?.value);
+  return { year: get("year"), month: get("month"), day: get("day"), hour: get("hour") };
+}
+
 /** RB-2508-0007 — year/month prefix keeps it sortable and human-readable. */
 export function buildOrderNumber(sequence: number, at = new Date()): string {
-  const yy = String(at.getFullYear()).slice(2);
-  const mm = String(at.getMonth() + 1).padStart(2, "0");
+  const { year, month } = istParts(at);
+  const yy = String(year).slice(2);
+  const mm = String(month).padStart(2, "0");
   return `RB-${yy}${mm}-${String(sequence).padStart(4, "0")}`;
 }
 
 export function formatDate(date: Date | string, withTime = false): string {
   const d = typeof date === "string" ? new Date(date) : date;
   return d.toLocaleDateString("en-IN", {
+    timeZone: IST_TIME_ZONE,
     day: "numeric",
     month: "short",
     year: "numeric",
@@ -51,11 +72,14 @@ export function relativeDays(date: Date | string): string {
   return formatDate(d);
 }
 
-/** Same-day if ordered before 9 PM, next-day otherwise. */
+/** Same-day if ordered before 9 PM IST, next-day otherwise. */
 export function estimatedDelivery(from = new Date()): string {
+  const { hour } = istParts(from);
   const d = new Date(from);
-  if (d.getHours() >= 21) {
-    d.setDate(d.getDate() + 1);
+  if (hour >= 21) {
+    // Explicit UTC setter — adds exactly 24h regardless of the server's local
+    // TZ, so the shift stays correct once formatDate renders it back in IST.
+    d.setUTCDate(d.getUTCDate() + 1);
   }
   return formatDate(d);
 }

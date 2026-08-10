@@ -48,6 +48,14 @@ export async function placeOrder(_prev: ActionState, formData: FormData): Promis
 
   const input = parsed.data;
 
+  const society = await prisma.society.findFirst({
+    where: { name: input.addressLine1, isActive: true },
+    select: { id: true },
+  });
+  if (!society) {
+    return { ok: false, errors: { addressLine1: "Please select a valid society from the list." } };
+  }
+
   try {
     const placed = await prisma.$transaction(async (tx) => {
       const products = await tx.product.findMany({

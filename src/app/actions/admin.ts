@@ -10,7 +10,13 @@ import {
   requireSession,
   setSessionCookie,
 } from "@/lib/auth";
-import { loginSchema, productSchema, categorySchema, fieldErrors } from "@/lib/validation";
+import {
+  loginSchema,
+  productSchema,
+  categorySchema,
+  societySchema,
+  fieldErrors,
+} from "@/lib/validation";
 import { rupeesToPaise } from "@/lib/money";
 import { slugify, serializeTags, ORDER_STATUSES, type OrderStatus } from "@/lib/utils";
 
@@ -380,4 +386,86 @@ export async function deleteCategory(formData: FormData) {
   revalidatePath("/admin/categories");
   revalidatePath("/products");
   revalidatePath("/rakhi-bazaar");
+}
+
+/* ───────────────────────── Societies ───────────────────────── */
+
+function readSocietyForm(formData: FormData) {
+  return {
+    name: formData.get("name"),
+    sortOrder: formData.get("sortOrder") || 0,
+    isActive: formData.get("isActive") === "on",
+  };
+}
+
+export async function createSociety(
+  _prev: AdminActionState,
+  formData: FormData,
+): Promise<AdminActionState> {
+  await requireSession();
+
+  const parsed = societySchema.safeParse(readSocietyForm(formData));
+  if (!parsed.success) return { ok: false, errors: fieldErrors(parsed.error) };
+
+  const d = parsed.data;
+  const clash = await prisma.society.findFirst({ where: { name: d.name } });
+  if (clash) return { ok: false, errors: { name: "A society with this name already exists." } };
+
+  const count = await prisma.society.count();
+  await prisma.society.create({
+    data: {
+      name: d.name,
+      sortOrder: d.sortOrder || count + 1,
+      isActive: d.isActive,
+    },
+  });
+
+  revalidatePath("/admin/societies");
+  revalidatePath("/checkout");
+  redirect("/admin/societies?created=1");
+}
+
+export async function updateSociety(
+  _prev: AdminActionState,
+  formData: FormData,
+): Promise<AdminActionState> {
+  await requireSession();
+
+  const id = String(formData.get("id") ?? "");
+  if (!id) return { ok: false, errors: { form: "Missing society id." } };
+
+  const parsed = societySchema.safeParse(readSocietyForm(formData));
+  if (!parsed.success) return { ok: false, errors: fieldErrors(parsed.error) };
+
+  const d = parsed.data;
+  const clash = await prisma.society.findFirst({
+    where: { name: d.name, NOT: { id } },
+  });
+  if (clash) return { ok: false, errors: { name: "A society with this name already exists." } };
+
+  await prisma.society.update({
+    where: { id },
+    data: {
+      name: d.name,
+      sortOrder: d.sortOrder,
+      isActive: d.isActive,
+    },
+  });
+
+  revalidatePath("/admin/societies");
+  revalidatePath("/checkout");
+  redirect("/admin/societies?updated=1");
+}
+
+export async function deleteSociety(formData: FormData) {
+  await requireSession();
+  const id = String(formData.get("id") ?? "");
+  if (!id) return;
+
+  // Orders snapshot the society name as a plain string (never a foreign
+  // key), so deleting one here never orphans past orders.
+  await prisma.society.delete({ where: { id } });
+
+  revalidatePath("/admin/societies");
+  revalidatePath("/checkout");
 }
