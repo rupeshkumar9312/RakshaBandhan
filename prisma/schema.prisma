@@ -21,6 +21,30 @@ model AdminUser {
   createdAt    DateTime @default(now())
 }
 
+// Permanent record of admin activity — login/logout plus every mutating
+// action — for audit purposes. Snapshot fields, not a relation to AdminUser,
+// so the trail survives an admin user being edited or removed later.
+model AdminAuditLog {
+  id         String   @id @default(cuid())
+  adminId    String?
+  adminEmail String
+  adminName  String?
+  action     String // LOGIN | LOGIN_FAILED | LOGOUT | PRODUCT_CREATE | ...
+  entityType String?
+  entityId   String?
+  detail     String?
+  ip         String?
+  country    String?
+  region     String?
+  city       String?
+  userAgent  String?
+  createdAt  DateTime @default(now())
+
+  @@index([adminId])
+  @@index([action])
+  @@index([createdAt])
+}
+
 model Category {
   id          String    @id @default(cuid())
   name        String    @unique
