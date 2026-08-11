@@ -398,15 +398,20 @@ export async function createOrder(
         },
       });
 
-      for (const line of lines) {
-        await tx.product.update({
-          where: { id: line.productId },
-          data: { inventory: { decrement: line.quantity } },
-        });
-      }
+      // Independent per-product updates — run concurrently instead of one
+      // round-trip at a time, since a sequential loop here is what was
+      // blowing past Prisma's interactive-transaction timeout on larger carts.
+      await Promise.all(
+        lines.map((line) =>
+          tx.product.update({
+            where: { id: line.productId },
+            data: { inventory: { decrement: line.quantity } },
+          }),
+        ),
+      );
 
       return order;
-    });
+    }, { timeout: 15_000 });
   } catch (error) {
     const message = error instanceof Error ? error.message : "";
     if (message.startsWith("STOCK:") || message.startsWith("UNAVAILABLE:")) {
@@ -486,16 +491,21 @@ export async function updateOrderItems(
         }
       }
 
-      for (const pid of productIds) {
-        const oldQty = oldQtyByProduct.get(pid) ?? 0;
-        const newQty = newQtyByProduct.get(pid) ?? 0;
-        const delta = newQty - oldQty;
-        if (delta === 0) continue;
-        await tx.product.update({
-          where: { id: pid },
-          data: { inventory: delta > 0 ? { decrement: delta } : { increment: -delta } },
-        });
-      }
+      // Independent per-product updates — run concurrently instead of one
+      // round-trip at a time, since a sequential loop here is what was
+      // blowing past Prisma's interactive-transaction timeout on larger orders.
+      await Promise.all(
+        [...productIds].map((pid) => {
+          const oldQty = oldQtyByProduct.get(pid) ?? 0;
+          const newQty = newQtyByProduct.get(pid) ?? 0;
+          const delta = newQty - oldQty;
+          if (delta === 0) return null;
+          return tx.product.update({
+            where: { id: pid },
+            data: { inventory: delta > 0 ? { decrement: delta } : { increment: -delta } },
+          });
+        }),
+      );
 
       const lines = [...newQtyByProduct.entries()].map(([pid, qty]) => {
         const product = byId.get(pid)!;
@@ -536,7 +546,7 @@ export async function updateOrderItems(
           items: { create: lines },
         },
       });
-    });
+    }, { timeout: 15_000 });
   } catch (error) {
     const message = error instanceof Error ? error.message : "";
     if (

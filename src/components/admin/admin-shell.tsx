@@ -2,9 +2,10 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { logoutAction } from "@/app/actions/admin";
 import { cn } from "@/lib/utils";
+import { formatPaise } from "@/lib/money";
 import { SITE } from "@/lib/site";
 import {
   ChartIcon,
@@ -21,6 +22,55 @@ import {
   LogoMark,
 } from "@/components/icons";
 import type { AdminSession } from "@/lib/auth";
+
+type OrderToast = {
+  id: string;
+  orderNumber: string;
+  contactName: string;
+  total: number;
+};
+
+const POLL_INTERVAL_MS = 12_000;
+const TOAST_LIFETIME_MS = 6_000;
+
+type AudioContextCtor = typeof AudioContext;
+
+function getAudioContextCtor(): AudioContextCtor | undefined {
+  return window.AudioContext || (window as unknown as { webkitAudioContext?: AudioContextCtor }).webkitAudioContext;
+}
+
+/**
+ * Short two-note chime via Web Audio — no audio asset needed.
+ *
+ * Browsers only let an AudioContext actually produce sound if it was created
+ * or resumed as a direct result of a user gesture (click/keypress) — a
+ * `setInterval` poll callback doesn't count, so a fresh context created there
+ * comes up permanently "suspended" and is silently inaudible. The caller is
+ * responsible for handing in a context that's already been unlocked by a
+ * real gesture (see the pointerdown/keydown listener in AdminShell below).
+ */
+function playNotificationSound(ctx: AudioContext) {
+  try {
+    if (ctx.state === "suspended") ctx.resume();
+    const now = ctx.currentTime;
+
+    [880, 1175].forEach((freq, i) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = "sine";
+      osc.frequency.value = freq;
+      const start = now + i * 0.12;
+      gain.gain.setValueAtTime(0, start);
+      gain.gain.linearRampToValueAtTime(0.2, start + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.001, start + 0.25);
+      osc.connect(gain).connect(ctx.destination);
+      osc.start(start);
+      osc.stop(start + 0.3);
+    });
+  } catch {
+    /* sound is a nice-to-have — never let it block the toast/badge update */
+  }
+}
 
 const NAV = [
   { href: "/admin", label: "Dashboard", Icon: ChartIcon, exact: true },
@@ -42,8 +92,68 @@ export function AdminShell({
 }) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+  const [unreadOrders, setUnreadOrders] = useState(0);
+  const [toasts, setToasts] = useState<OrderToast[]>([]);
+  const sinceRef = useRef<string>(new Date().toISOString());
+  const audioCtxRef = useRef<AudioContext | null>(null);
 
   useEffect(() => setOpen(false), [pathname]);
+
+  // AudioContext can only be started/resumed as a direct result of a real
+  // user gesture — grab (and keep) one on the admin's first click/keypress
+  // anywhere in the panel so the poll below has something usable later.
+  useEffect(() => {
+    function unlockAudio() {
+      if (!audioCtxRef.current) {
+        const Ctx = getAudioContextCtor();
+        if (Ctx) audioCtxRef.current = new Ctx();
+      }
+      audioCtxRef.current?.resume();
+    }
+    window.addEventListener("pointerdown", unlockAudio);
+    window.addEventListener("keydown", unlockAudio);
+    return () => {
+      window.removeEventListener("pointerdown", unlockAudio);
+      window.removeEventListener("keydown", unlockAudio);
+    };
+  }, []);
+
+  // New orders since the panel loaded — cleared once the admin actually
+  // opens the orders list, not just when a toast fades.
+  useEffect(() => {
+    if (pathname === "/admin/orders") setUnreadOrders(0);
+  }, [pathname]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function poll() {
+      try {
+        const res = await fetch(`/api/admin/notifications?since=${encodeURIComponent(sinceRef.current)}`);
+        if (!res.ok || cancelled) return;
+        const data: { orders: OrderToast[]; serverTime: string } = await res.json();
+        sinceRef.current = data.serverTime;
+        if (data.orders.length === 0) return;
+
+        if (audioCtxRef.current) playNotificationSound(audioCtxRef.current);
+        setUnreadOrders((n) => n + data.orders.length);
+        setToasts((prev) => [...data.orders, ...prev].slice(0, 3));
+        for (const order of data.orders) {
+          setTimeout(() => {
+            if (!cancelled) setToasts((prev) => prev.filter((t) => t.id !== order.id));
+          }, TOAST_LIFETIME_MS);
+        }
+      } catch {
+        /* transient network error — next poll will retry */
+      }
+    }
+
+    const interval = setInterval(poll, POLL_INTERVAL_MS);
+    return () => {
+      cancelled = true;
+      clearInterval(interval);
+    };
+  }, []);
 
   const isActive = (item: (typeof NAV)[number]) =>
     item.exact ? pathname === item.href : pathname.startsWith(item.href);
@@ -63,6 +173,11 @@ export function AdminShell({
         >
           <item.Icon className="size-4.5 shrink-0" />
           {item.label}
+          {item.href === "/admin/orders" && unreadOrders > 0 && (
+            <span className="ml-auto grid min-w-5 place-items-center rounded-full bg-gold-500 px-1.5 py-0.5 text-[0.6875rem] font-bold text-maroon-950 tabular-nums">
+              {unreadOrders > 99 ? "99+" : unreadOrders}
+            </span>
+          )}
         </Link>
       ))}
     </nav>
@@ -174,6 +289,39 @@ export function AdminShell({
       </aside>
 
       <main className="min-w-0 flex-1 p-4 sm:p-6 lg:p-8">{children}</main>
+
+      {/* New-order toasts */}
+      <div className="fixed right-4 top-4 z-52 flex w-[90%] max-w-sm flex-col gap-2">
+        {toasts.map((t) => (
+          <div
+            key={t.id}
+            role="status"
+            className="card relative flex items-start gap-3 p-4 pr-9 shadow-(--shadow-lift)"
+          >
+            <span className="mt-0.5 grid size-8 shrink-0 place-items-center rounded-full bg-gold-100 text-gold-700">
+              <PackageIcon className="size-4" />
+            </span>
+            <Link
+              href={`/admin/orders/${t.id}`}
+              onClick={() => setToasts((prev) => prev.filter((x) => x.id !== t.id))}
+              className="min-w-0 flex-1"
+            >
+              <p className="text-sm font-bold">New order {t.orderNumber}</p>
+              <p className="mt-0.5 truncate text-xs text-ink-muted">
+                {formatPaise(t.total)} · {t.contactName}
+              </p>
+            </Link>
+            <button
+              type="button"
+              onClick={() => setToasts((prev) => prev.filter((x) => x.id !== t.id))}
+              aria-label="Dismiss"
+              className="absolute right-2 top-2 grid size-6 place-items-center rounded-full text-ink-muted hover:bg-cream-200"
+            >
+              <CloseIcon className="size-3.5" />
+            </button>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
