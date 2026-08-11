@@ -56,7 +56,7 @@ export default async function ProductsPage({ searchParams }: { searchParams: Sea
           </nav>
 
           <h1 className="font-display text-3xl font-bold sm:text-5xl">
-            {activeCategory?.name ?? (q ? `Results for “${q}”` : "Every rakhi we have")}
+            {activeCategory?.name ?? (q ? `Results for “${q}”` : "Our Rakhi Edition")}
           </h1>
           <p className="mt-3 max-w-2xl text-[0.9375rem] leading-relaxed text-ink-muted">
             {activeCategory?.description ??

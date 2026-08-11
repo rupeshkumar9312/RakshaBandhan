@@ -9,7 +9,14 @@ import { useCart } from "@/components/cart-provider";
 import { placeOrder, type ActionState } from "@/app/actions/shop";
 import { formatPaise } from "@/lib/money";
 import { estimatedDelivery, cn } from "@/lib/utils";
-import { CashIcon, CheckIcon, ChevronLeft, CartIcon } from "@/components/icons";
+import {
+  CashIcon,
+  CheckIcon,
+  ChevronLeft,
+  ChevronDown,
+  CartIcon,
+  CloseIcon,
+} from "@/components/icons";
 
 const STEPS = ["Contact", "Delivery", "Review"] as const;
 
@@ -20,7 +27,6 @@ const FIELD_STEP: Record<string, number> = {
   contactEmail: 0,
   addressLine1: 1,
   addressLine2: 1,
-  tower: 1,
   flat: 1,
   landmark: 1,
   city: 1,
@@ -34,8 +40,8 @@ type Values = {
   contactPhone: string;
   contactEmail: string;
   addressLine1: string;
-  tower: string;
   flat: string;
+  addressLine2: string;
   landmark: string;
   city: string;
   state: string;
@@ -48,8 +54,8 @@ const EMPTY: Values = {
   contactPhone: "",
   contactEmail: "",
   addressLine1: "",
-  tower: "",
   flat: "",
+  addressLine2: "",
   landmark: "",
   city: "Noida",
   state: "Uttar Pradesh",
@@ -82,6 +88,10 @@ export function CheckoutForm({ societies }: { societies: { id: string; name: str
   const [step, setStep] = useState(0);
   const [values, setValues] = useState<Values>(EMPTY);
   const [localErrors, setLocalErrors] = useState<Record<string, string>>({});
+  const [showUnserviceable, setShowUnserviceable] = useState(false);
+  const [suggestOpen, setSuggestOpen] = useState(false);
+  const [highlight, setHighlight] = useState(0);
+  const addressWrapRef = useRef<HTMLDivElement>(null);
 
   // Restore a half-finished address so a refresh doesn't cost the sale.
   useEffect(() => {
@@ -117,6 +127,12 @@ export function CheckoutForm({ societies }: { societies: { id: string; name: str
     }
   }, [state, clear, router]);
 
+  // Address didn't match a serviceable society — the cart stays intact so the
+  // customer can pick a real one instead of losing their selection.
+  useEffect(() => {
+    if (state?.ok && state.unserviceable) setShowUnserviceable(true);
+  }, [state]);
+
   const serverErrors = state && !state.ok ? state.errors : {};
   const errors = { ...serverErrors, ...localErrors };
 
@@ -141,6 +157,54 @@ export function CheckoutForm({ societies }: { societies: { id: string; name: str
         return next;
       });
     };
+
+  // Custom society combobox — a native <datalist> popup can't be restyled,
+  // so suggestions are rendered as our own dropdown to match the theme.
+  useEffect(() => {
+    function onDocMouseDown(e: MouseEvent) {
+      if (addressWrapRef.current && !addressWrapRef.current.contains(e.target as Node)) {
+        setSuggestOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", onDocMouseDown);
+    return () => document.removeEventListener("mousedown", onDocMouseDown);
+  }, []);
+
+  const filteredSocieties = societies
+    .filter((s) => s.name.toLowerCase().includes(values.addressLine1.trim().toLowerCase()))
+    .slice(0, 8);
+
+  function selectSociety(name: string) {
+    setValues((v) => ({ ...v, addressLine1: name }));
+    setLocalErrors((p) => {
+      if (!p.addressLine1) return p;
+      const next = { ...p };
+      delete next.addressLine1;
+      return next;
+    });
+    setSuggestOpen(false);
+  }
+
+  function onAddressKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
+    if (!suggestOpen) {
+      if (e.key === "ArrowDown") setSuggestOpen(true);
+      return;
+    }
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      setHighlight((h) => Math.min(h + 1, filteredSocieties.length - 1));
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      setHighlight((h) => Math.max(h - 1, 0));
+    } else if (e.key === "Enter") {
+      if (filteredSocieties[highlight]) {
+        e.preventDefault();
+        selectSociety(filteredSocieties[highlight].name);
+      }
+    } else if (e.key === "Escape") {
+      setSuggestOpen(false);
+    }
+  }
 
   function validateStep(index: number): boolean {
     const next: Record<string, string> = {};
@@ -317,40 +381,79 @@ export function CheckoutForm({ societies }: { societies: { id: string; name: str
             <section className="card p-6">
               <h2 className="text-lg font-bold">Where should we deliver?</h2>
               <p className="mt-1 text-sm text-ink-muted">
-                Tower and flat number help us hand it over directly.
+                House/flat number and a complete address help us hand it over directly.
               </p>
 
               <div className="mt-6 space-y-4">
-                <div>
+                <div ref={addressWrapRef}>
                   <label htmlFor="f-addressLine1" className="label">
-                    Society / building
+                    Society / Area / Street
                   </label>
-                  {societies.length > 0 ? (
-                    <select
+                  <div className="relative">
+                    <input
                       id="f-addressLine1"
                       name="addressLine1"
+                      autoComplete="off"
                       value={values.addressLine1}
-                      onChange={set("addressLine1")}
+                      onChange={(e) => {
+                        set("addressLine1")(e);
+                        setSuggestOpen(true);
+                        setHighlight(0);
+                      }}
+                      onFocus={() => {
+                        setSuggestOpen(true);
+                        setHighlight(0);
+                      }}
+                      onKeyDown={onAddressKeyDown}
+                      placeholder="Start typing your society or building name"
+                      role="combobox"
+                      aria-expanded={suggestOpen}
+                      aria-controls="society-listbox"
+                      aria-autocomplete="list"
                       aria-invalid={Boolean(errors.addressLine1)}
                       aria-describedby={
                         errors.addressLine1 ? "f-addressLine1-err" : undefined
                       }
-                      className={cn("field", errors.addressLine1 && "field-error")}
-                    >
-                      <option value="" disabled>
-                        Select your society
-                      </option>
-                      {societies.map((s) => (
-                        <option key={s.id} value={s.name}>
-                          {s.name}
-                        </option>
-                      ))}
-                    </select>
-                  ) : (
-                    <select id="f-addressLine1" disabled className="field">
-                      <option>No societies available — contact support</option>
-                    </select>
-                  )}
+                      className={cn("field pr-10", errors.addressLine1 && "field-error")}
+                    />
+                    <ChevronDown className="pointer-events-none absolute right-3.5 top-1/2 size-4 -translate-y-1/2 text-ink-muted" />
+
+                    {suggestOpen && filteredSocieties.length > 0 && (
+                      <ul
+                        id="society-listbox"
+                        role="listbox"
+                        className="absolute inset-x-0 top-full z-20 mt-1.5 max-h-60 overflow-y-auto rounded-xl border border-cream-300 bg-white py-1.5 shadow-(--shadow-lift)"
+                      >
+                        {filteredSocieties.map((s, i) => (
+                          <li key={s.id} role="presentation">
+                            <button
+                              type="button"
+                              role="option"
+                              aria-selected={values.addressLine1 === s.name}
+                              onMouseDown={(e) => e.preventDefault()}
+                              onMouseEnter={() => setHighlight(i)}
+                              onClick={() => selectSociety(s.name)}
+                              className={cn(
+                                "flex w-full items-center justify-between gap-2 px-4 py-2.5 text-left text-sm transition-colors",
+                                i === highlight
+                                  ? "bg-maroon-50 text-maroon-800"
+                                  : "text-ink-soft hover:bg-cream-100",
+                              )}
+                            >
+                              {s.name}
+                              {values.addressLine1 === s.name && (
+                                <CheckIcon className="size-4 shrink-0 text-maroon-700" />
+                              )}
+                            </button>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                  <p className="mt-1 text-xs text-ink-muted">
+                    Don&apos;t see your society? Type it anyway — we&apos;ll let
+                    you know if we can deliver there.
+                  </p>
                   {errors.addressLine1 && (
                     <p id="f-addressLine1-err" className="mt-1 text-xs text-maroon-600">
                       {errors.addressLine1}
@@ -358,32 +461,22 @@ export function CheckoutForm({ societies }: { societies: { id: string; name: str
                   )}
                 </div>
 
-                <div className="grid grid-cols-2 gap-3">
-                  <Field
-                    label="Tower"
-                    
-                    name="tower"
-                    value={values.tower}
-                    onChange={set("tower")}
-                    placeholder="Tower B"
-                  />
-                  <Field
-                    label="Flat no."
-                    
-                    name="flat"
-                    value={values.flat}
-                    onChange={set("flat")}
-                    placeholder="1204"
-                  />
-                </div>
+                <Field
+                  label="House No. / Flat No."
+                  optional
+                  name="flat"
+                  value={values.flat}
+                  onChange={set("flat")}
+                  placeholder="B-1204"
+                />
 
                 <Field
-                  label="Landmark"
+                  label="Complete Address"
                   optional
-                  name="landmark"
-                  value={values.landmark}
-                  onChange={set("landmark")}
-                  placeholder=""
+                  name="addressLine2"
+                  value={values.addressLine2}
+                  onChange={set("addressLine2")}
+                  placeholder="Block, wing, floor — anything the society name doesn't cover"
                 />
 
                 <div className="grid grid-cols-2 gap-3">
@@ -396,7 +489,7 @@ export function CheckoutForm({ societies }: { societies: { id: string; name: str
                     autoComplete="address-level2"
                   />
                   <Field
-                    label="PIN code"
+                    label="Pincode"
                     name="pincode"
                     value={values.pincode}
                     onChange={set("pincode")}
@@ -405,6 +498,15 @@ export function CheckoutForm({ societies }: { societies: { id: string; name: str
                     autoComplete="postal-code"
                   />
                 </div>
+
+                <Field
+                  label="Landmark"
+                  optional
+                  name="landmark"
+                  value={values.landmark}
+                  onChange={set("landmark")}
+                  placeholder=""
+                />
 
                 <div>
                   <label htmlFor="customerNote" className="label">
@@ -461,10 +563,20 @@ export function CheckoutForm({ societies }: { societies: { id: string; name: str
                         </>
                       )}
                       <br />
-                      {[values.flat, values.tower].filter(Boolean).join(", ")}
-                      {(values.flat || values.tower) && <br />}
+                      {values.flat && (
+                        <>
+                          {values.flat}
+                          <br />
+                        </>
+                      )}
                       {values.addressLine1}
                       <br />
+                      {values.addressLine2 && (
+                        <>
+                          {values.addressLine2}
+                          <br />
+                        </>
+                      )}
                       {values.landmark && (
                         <>
                           {values.landmark}
@@ -648,6 +760,58 @@ export function CheckoutForm({ societies }: { societies: { id: string; name: str
           </p>
         </div>
       </aside>
+
+      {/* Unserviceable-address dialog */}
+      <div
+        onClick={() => setShowUnserviceable(false)}
+        aria-hidden
+        className={cn(
+          "fixed inset-0 z-50 bg-ink/45 backdrop-blur-[2px] transition-opacity duration-300",
+          showUnserviceable ? "opacity-100" : "pointer-events-none opacity-0",
+        )}
+      />
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-label="We don't deliver there yet"
+        className={cn(
+          "fixed left-1/2 top-1/2 z-51 w-[90%] max-w-sm -translate-x-1/2 rounded-xl2 bg-white p-6 text-center shadow-2xl transition-all duration-300",
+          showUnserviceable
+            ? "-translate-y-1/2 opacity-100"
+            : "pointer-events-none translate-y-[-45%] opacity-0",
+        )}
+      >
+        <button
+          type="button"
+          onClick={() => setShowUnserviceable(false)}
+          aria-label="Close"
+          className="absolute right-3 top-3 grid size-8 place-items-center rounded-full text-ink-muted hover:bg-cream-200"
+        >
+          <CloseIcon className="size-4" />
+        </button>
+        <h2 className="font-display text-lg font-bold">Coming soon to your area</h2>
+        <p className="mt-2 text-sm text-ink-soft">
+          We don&apos;t deliver to <strong>{values.addressLine1}</strong> yet —
+          but we&apos;ve noted your interest and will reach out as soon as we
+          expand there.
+        </p>
+        <div className="mt-5 flex flex-col gap-2">
+          <button
+            type="button"
+            onClick={() => setShowUnserviceable(false)}
+            className="btn btn-primary w-full"
+          >
+            Try a different society
+          </button>
+          <button
+            type="button"
+            onClick={() => router.push("/products")}
+            className="btn btn-ghost w-full"
+          >
+            Back to shopping
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

@@ -41,6 +41,31 @@ model Society {
   createdAt DateTime @default(now())
 }
 
+// A checkout attempt whose address didn't match any active Society — captured
+// as a demand signal for expansion planning, not a real order.
+model DemandLead {
+  id               String   @id @default(cuid())
+  contactName      String
+  contactPhone     String
+  contactEmail     String?
+  requestedAddress String
+  tower            String?
+  flat             String?
+  landmark         String?
+  city             String
+  state            String
+  pincode          String
+  // JSON snapshot [{productId,name,quantity}] — best-effort signal of what
+  // they wanted, not a real order; no FK to Product so it never blocks on
+  // deletion.
+  itemsSnapshot String?
+  customerNote  String?
+  createdAt     DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([pincode])
+}
+
 model Product {
   id             String  @id @default(cuid())
   name           String
