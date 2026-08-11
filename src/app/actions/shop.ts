@@ -146,15 +146,20 @@ export async function placeOrder(_prev: ActionState, formData: FormData): Promis
         },
       });
 
-      for (const line of lines) {
-        await tx.product.update({
-          where: { id: line.productId },
-          data: { inventory: { decrement: line.quantity } },
-        });
-      }
+      // Independent per-product updates — run concurrently instead of one
+      // round-trip at a time, since a sequential loop here is what was
+      // blowing past Prisma's interactive-transaction timeout on larger carts.
+      await Promise.all(
+        lines.map((line) =>
+          tx.product.update({
+            where: { id: line.productId },
+            data: { inventory: { decrement: line.quantity } },
+          }),
+        ),
+      );
 
       return { orderNumber: order.orderNumber, publicToken: order.publicToken };
-    });
+    }, { timeout: 15_000 });
 
     revalidatePath("/products");
     revalidatePath("/admin");
