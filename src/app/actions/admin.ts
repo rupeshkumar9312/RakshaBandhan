@@ -7,6 +7,7 @@ import {
   authenticate,
   clearSessionCookie,
   createSessionToken,
+  getSession,
   requireSession,
   setSessionCookie,
 } from "@/lib/auth";
@@ -27,6 +28,7 @@ import {
   ORDER_STATUSES,
   type OrderStatus,
 } from "@/lib/utils";
+import { logAdminAction } from "@/lib/audit";
 
 export type AdminActionState =
   | { ok: true; message?: string }
@@ -46,8 +48,20 @@ export async function loginAction(
 
   const session = await authenticate(parsed.data.email, parsed.data.password);
   if (!session) {
+    await logAdminAction({
+      adminId: null,
+      adminEmail: parsed.data.email,
+      action: "LOGIN_FAILED",
+    });
     return { ok: false, errors: { form: "Incorrect email or password." } };
   }
+
+  await logAdminAction({
+    adminId: session.sub,
+    adminEmail: session.email,
+    adminName: session.name,
+    action: "LOGIN",
+  });
 
   await setSessionCookie(await createSessionToken(session));
 
@@ -57,6 +71,15 @@ export async function loginAction(
 }
 
 export async function logoutAction() {
+  const session = await getSession();
+  if (session) {
+    await logAdminAction({
+      adminId: session.sub,
+      adminEmail: session.email,
+      adminName: session.name,
+      action: "LOGOUT",
+    });
+  }
   await clearSessionCookie();
   redirect("/admin/login");
 }
@@ -101,7 +124,7 @@ export async function createProduct(
   _prev: AdminActionState,
   formData: FormData,
 ): Promise<AdminActionState> {
-  await requireSession();
+  const session = await requireSession();
 
   const parsed = productSchema.safeParse(readProductForm(formData));
   if (!parsed.success) return { ok: false, errors: fieldErrors(parsed.error) };
@@ -109,7 +132,7 @@ export async function createProduct(
   const d = parsed.data;
   const slug = await uniqueSlug(slugify(d.slug || d.name));
 
-  await prisma.product.create({
+  const product = await prisma.product.create({
     data: {
       name: d.name,
       slug,
@@ -130,6 +153,16 @@ export async function createProduct(
     },
   });
 
+  await logAdminAction({
+    adminId: session.sub,
+    adminEmail: session.email,
+    adminName: session.name,
+    action: "PRODUCT_CREATE",
+    entityType: "Product",
+    entityId: product.id,
+    detail: product.name,
+  });
+
   revalidatePath("/admin/products");
   revalidatePath("/products");
   redirect("/admin/products?created=1");
@@ -139,7 +172,7 @@ export async function updateProduct(
   _prev: AdminActionState,
   formData: FormData,
 ): Promise<AdminActionState> {
-  await requireSession();
+  const session = await requireSession();
 
   const id = String(formData.get("id") ?? "");
   if (!id) return { ok: false, errors: { form: "Missing product id." } };
@@ -175,6 +208,16 @@ export async function updateProduct(
     }),
   ]);
 
+  await logAdminAction({
+    adminId: session.sub,
+    adminEmail: session.email,
+    adminName: session.name,
+    action: "PRODUCT_UPDATE",
+    entityType: "Product",
+    entityId: id,
+    detail: d.name,
+  });
+
   revalidatePath("/admin/products");
   revalidatePath("/products");
   revalidatePath(`/products/${slug}`);
@@ -182,7 +225,7 @@ export async function updateProduct(
 }
 
 export async function deleteProduct(formData: FormData) {
-  await requireSession();
+  const session = await requireSession();
   const id = String(formData.get("id") ?? "");
   if (!id) return;
 
@@ -190,18 +233,31 @@ export async function deleteProduct(formData: FormData) {
   // history, so retire them instead.
   const orderCount = await prisma.orderItem.count({ where: { productId: id } });
 
+  let detail: string;
   if (orderCount > 0) {
     await prisma.product.update({ where: { id }, data: { isActive: false } });
+    detail = "deactivated (has order history)";
   } else {
     await prisma.product.delete({ where: { id } });
+    detail = "deleted";
   }
+
+  await logAdminAction({
+    adminId: session.sub,
+    adminEmail: session.email,
+    adminName: session.name,
+    action: "PRODUCT_DELETE",
+    entityType: "Product",
+    entityId: id,
+    detail,
+  });
 
   revalidatePath("/admin/products");
   revalidatePath("/products");
 }
 
 export async function toggleProductFlag(formData: FormData) {
-  await requireSession();
+  const session = await requireSession();
   const id = String(formData.get("id") ?? "");
   const field = String(formData.get("field") ?? "");
   if (!id || (field !== "isActive" && field !== "isFeatured")) return;
@@ -212,12 +268,21 @@ export async function toggleProductFlag(formData: FormData) {
   });
   if (!product) return;
 
+  const newValue = field === "isActive" ? !product.isActive : !product.isFeatured;
+
   await prisma.product.update({
     where: { id },
-    data:
-      field === "isActive"
-        ? { isActive: !product.isActive }
-        : { isFeatured: !product.isFeatured },
+    data: field === "isActive" ? { isActive: newValue } : { isFeatured: newValue },
+  });
+
+  await logAdminAction({
+    adminId: session.sub,
+    adminEmail: session.email,
+    adminName: session.name,
+    action: "PRODUCT_TOGGLE",
+    entityType: "Product",
+    entityId: id,
+    detail: `${field}: ${newValue}`,
   });
 
   revalidatePath("/admin/products");
@@ -227,7 +292,7 @@ export async function toggleProductFlag(formData: FormData) {
 /* ───────────────────────── Orders ───────────────────────── */
 
 export async function updateOrderStatus(formData: FormData) {
-  await requireSession();
+  const session = await requireSession();
 
   const id = String(formData.get("id") ?? "");
   const status = String(formData.get("status") ?? "") as OrderStatus;
@@ -268,18 +333,38 @@ export async function updateOrderStatus(formData: FormData) {
     },
   });
 
+  await logAdminAction({
+    adminId: session.sub,
+    adminEmail: session.email,
+    adminName: session.name,
+    action: "ORDER_STATUS_UPDATE",
+    entityType: "Order",
+    entityId: id,
+    detail: `${order.status} -> ${status}`,
+  });
+
   revalidatePath("/admin/orders");
   revalidatePath(`/admin/orders/${id}`);
   revalidatePath("/admin");
 }
 
 export async function saveOrderNote(formData: FormData) {
-  await requireSession();
+  const session = await requireSession();
   const id = String(formData.get("id") ?? "");
   const adminNote = String(formData.get("adminNote") ?? "").slice(0, 1000);
   if (!id) return;
 
   await prisma.order.update({ where: { id }, data: { adminNote: adminNote || null } });
+
+  await logAdminAction({
+    adminId: session.sub,
+    adminEmail: session.email,
+    adminName: session.name,
+    action: "ORDER_NOTE_UPDATE",
+    entityType: "Order",
+    entityId: id,
+  });
+
   revalidatePath(`/admin/orders/${id}`);
 }
 
@@ -327,7 +412,7 @@ export async function createOrder(
   if (!parsed.success) return { ok: false, errors: fieldErrors(parsed.error) };
   const input = parsed.data;
 
-  let created: { id: string };
+  let created: { id: string; orderNumber: string };
   try {
     created = await prisma.$transaction(async (tx) => {
       const products = await tx.product.findMany({
@@ -423,6 +508,16 @@ export async function createOrder(
       errors: { form: "Something went wrong creating the order. Please try again." },
     };
   }
+
+  await logAdminAction({
+    adminId: session.sub,
+    adminEmail: session.email,
+    adminName: session.name,
+    action: "ORDER_CREATE",
+    entityType: "Order",
+    entityId: created.id,
+    detail: created.orderNumber,
+  });
 
   // Outside the try/catch — redirect() throws internally, and a catch-all
   // above would otherwise swallow that as a false "something went wrong".
@@ -563,6 +658,15 @@ export async function updateOrderItems(
     };
   }
 
+  await logAdminAction({
+    adminId: session.sub,
+    adminEmail: session.email,
+    adminName: session.name,
+    action: "ORDER_ITEMS_UPDATE",
+    entityType: "Order",
+    entityId: id,
+  });
+
   revalidatePath("/admin/orders");
   revalidatePath(`/admin/orders/${id}`);
   revalidatePath("/admin");
@@ -641,7 +745,7 @@ export async function createCategory(
   _prev: AdminActionState,
   formData: FormData,
 ): Promise<AdminActionState> {
-  await requireSession();
+  const session = await requireSession();
 
   const parsed = categorySchema.safeParse(readCategoryForm(formData));
   if (!parsed.success) return { ok: false, errors: fieldErrors(parsed.error) };
@@ -650,7 +754,7 @@ export async function createCategory(
   const slug = await uniqueCategorySlug(slugify(d.slug || d.name));
   const count = await prisma.category.count();
 
-  await prisma.category.create({
+  const category = await prisma.category.create({
     data: {
       name: d.name,
       slug,
@@ -663,6 +767,16 @@ export async function createCategory(
     },
   });
 
+  await logAdminAction({
+    adminId: session.sub,
+    adminEmail: session.email,
+    adminName: session.name,
+    action: "CATEGORY_CREATE",
+    entityType: "Category",
+    entityId: category.id,
+    detail: category.name,
+  });
+
   revalidatePath("/admin/categories");
   revalidatePath("/products");
   revalidatePath("/rakhi-bazaar");
@@ -673,7 +787,7 @@ export async function updateCategory(
   _prev: AdminActionState,
   formData: FormData,
 ): Promise<AdminActionState> {
-  await requireSession();
+  const session = await requireSession();
 
   const id = String(formData.get("id") ?? "");
   if (!id) return { ok: false, errors: { form: "Missing category id." } };
@@ -696,6 +810,16 @@ export async function updateCategory(
     },
   });
 
+  await logAdminAction({
+    adminId: session.sub,
+    adminEmail: session.email,
+    adminName: session.name,
+    action: "CATEGORY_UPDATE",
+    entityType: "Category",
+    entityId: id,
+    detail: d.name,
+  });
+
   revalidatePath("/admin/categories");
   revalidatePath("/products");
   revalidatePath("/rakhi-bazaar");
@@ -703,7 +827,7 @@ export async function updateCategory(
 }
 
 export async function deleteCategory(formData: FormData) {
-  await requireSession();
+  const session = await requireSession();
   const id = String(formData.get("id") ?? "");
   if (!id) return;
 
@@ -711,11 +835,24 @@ export async function deleteCategory(formData: FormData) {
   // that's still in use gets hidden from the storefront instead of removed.
   const productCount = await prisma.product.count({ where: { categoryId: id } });
 
+  let detail: string;
   if (productCount > 0) {
     await prisma.category.update({ where: { id }, data: { isActive: false } });
+    detail = "deactivated (has products)";
   } else {
     await prisma.category.delete({ where: { id } });
+    detail = "deleted";
   }
+
+  await logAdminAction({
+    adminId: session.sub,
+    adminEmail: session.email,
+    adminName: session.name,
+    action: "CATEGORY_DELETE",
+    entityType: "Category",
+    entityId: id,
+    detail,
+  });
 
   revalidatePath("/admin/categories");
   revalidatePath("/products");
@@ -736,7 +873,7 @@ export async function createSociety(
   _prev: AdminActionState,
   formData: FormData,
 ): Promise<AdminActionState> {
-  await requireSession();
+  const session = await requireSession();
 
   const parsed = societySchema.safeParse(readSocietyForm(formData));
   if (!parsed.success) return { ok: false, errors: fieldErrors(parsed.error) };
@@ -746,12 +883,22 @@ export async function createSociety(
   if (clash) return { ok: false, errors: { name: "A society with this name already exists." } };
 
   const count = await prisma.society.count();
-  await prisma.society.create({
+  const society = await prisma.society.create({
     data: {
       name: d.name,
       sortOrder: d.sortOrder || count + 1,
       isActive: d.isActive,
     },
+  });
+
+  await logAdminAction({
+    adminId: session.sub,
+    adminEmail: session.email,
+    adminName: session.name,
+    action: "SOCIETY_CREATE",
+    entityType: "Society",
+    entityId: society.id,
+    detail: society.name,
   });
 
   revalidatePath("/admin/societies");
@@ -763,7 +910,7 @@ export async function updateSociety(
   _prev: AdminActionState,
   formData: FormData,
 ): Promise<AdminActionState> {
-  await requireSession();
+  const session = await requireSession();
 
   const id = String(formData.get("id") ?? "");
   if (!id) return { ok: false, errors: { form: "Missing society id." } };
@@ -786,19 +933,38 @@ export async function updateSociety(
     },
   });
 
+  await logAdminAction({
+    adminId: session.sub,
+    adminEmail: session.email,
+    adminName: session.name,
+    action: "SOCIETY_UPDATE",
+    entityType: "Society",
+    entityId: id,
+    detail: d.name,
+  });
+
   revalidatePath("/admin/societies");
   revalidatePath("/checkout");
   redirect("/admin/societies?updated=1");
 }
 
 export async function deleteSociety(formData: FormData) {
-  await requireSession();
+  const session = await requireSession();
   const id = String(formData.get("id") ?? "");
   if (!id) return;
 
   // Orders snapshot the society name as a plain string (never a foreign
   // key), so deleting one here never orphans past orders.
   await prisma.society.delete({ where: { id } });
+
+  await logAdminAction({
+    adminId: session.sub,
+    adminEmail: session.email,
+    adminName: session.name,
+    action: "SOCIETY_DELETE",
+    entityType: "Society",
+    entityId: id,
+  });
 
   revalidatePath("/admin/societies");
   revalidatePath("/checkout");
